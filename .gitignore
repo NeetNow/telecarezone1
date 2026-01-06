@@ -1,0 +1,55 @@
+# Environment Configuration
+config/.env
+.env
+
+# Uploaded Files
+uploads/*
+!uploads/.gitkeep
+
+# Node Modules
+node_modules/
+frontend/node_modules/
+
+# Build Files (will be built on deployment)
+frontend/build/
+
+# Composer
+vendor/
+
+# Logs
+*.log
+/var/log/
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary Files
+tmp/
+temp/
+*.tmp
+
+# Backend Server (Emergent specific - not needed for Hostinger)
+backend/server.py
+
+# Test Files
+/test_result.md
+-e 
+# Environment files
+*.env
+*.env.*
+frontend/node_modules/.cache/default-development/0.pack
+-e 
+# Environment files
+*.env
+*.env.*
+-e 
+# Environment files
+*.env
+*.env.*
