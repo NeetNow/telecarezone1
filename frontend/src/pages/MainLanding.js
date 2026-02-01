@@ -209,14 +209,14 @@ export default function MainLanding() {
             <div className="hidden lg:block relative">
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-teal-400 to-cyan-500 rounded-3xl transform rotate-3 opacity-20" />
-                <div className="relative bg-black rounded-3xl shadow-2xl p-8">
+                <div className="relative bg-white rounded-3xl shadow-2xl p-8">
                   <div className="flex items-center gap-4 mb-6">
                     <div className="w-16 h-16 bg-teal-100 rounded-2xl flex items-center justify-center">
                       <Video className="w-8 h-8 text-teal-600" />
                     </div>
                     <div>
-                      <p className="text-sm text-gray-300">Video Consultation</p>
-                      <p className="text-xl font-bold text-white">In Progress...</p>
+                      <p className="text-sm text-gray-500">Video Consultation</p>
+                      <p className="text-xl font-bold text-gray-900">In Progress...</p>
                     </div>
                   </div>
                   <div className="aspect-video bg-gradient-to-br from-teal-500 to-cyan-600 rounded-2xl flex items-center justify-center">
