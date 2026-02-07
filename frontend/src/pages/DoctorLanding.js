@@ -4,30 +4,31 @@ import axios from 'axios';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Calendar, Instagram, Youtube, Twitter, Star } from 'lucide-react';
+import { Calendar, Instagram, Youtube, Twitter, Star, ArrowLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-export default function DoctorLanding({ subdomain: propSubdomain }) {
+export default function DoctorLanding() {
   const navigate = useNavigate();
-  const { subdomain: paramSubdomain } = useParams();
-  const subdomain = propSubdomain || paramSubdomain;
+  // Get professional slug from URL path (e.g., /priya-sharma)
+  const { professionalSlug } = useParams();
   const [professional, setProfessional] = useState(null);
   const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (subdomain) {
+    if (professionalSlug) {
       fetchProfessionalData();
     }
-  }, [subdomain]);
+  }, [professionalSlug]);
 
   const fetchProfessionalData = async () => {
     try {
       const [profRes, testimonialRes] = await Promise.all([
-        axios.get(`${API}/public/professional/${subdomain}`),
-        axios.get(`${API}/testimonials/${subdomain}`).catch(() => ({ data: [] }))
+        axios.get(`${API}/public/professional/${professionalSlug}`),
+        axios.get(`${API}/testimonials/${professionalSlug}`).catch(() => ({ data: [] }))
       ]);
       
       setProfessional(profRes.data);
@@ -49,10 +50,14 @@ export default function DoctorLanding({ subdomain: propSubdomain }) {
 
   if (!professional) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Professional Not Found</h1>
-          <p className="text-gray-600">This profile is not available or pending approval.</p>
+          <p className="text-gray-600 mb-6">This profile is not available or pending approval.</p>
+          <Link to="/" className="text-teal-600 hover:text-teal-700 flex items-center justify-center gap-2">
+            <ArrowLeft className="w-4 h-4" />
+            Back to Home
+          </Link>
         </div>
       </div>
     );
@@ -62,39 +67,62 @@ export default function DoctorLanding({ subdomain: propSubdomain }) {
     return `${professional.first_name?.charAt(0) || ''}${professional.last_name?.charAt(0) || ''}`;
   };
 
+  // Get theme color or default to teal
+  const themeColor = professional.theme_color || '#0d9488';
+
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #e0f7fa 0%, #b3e5fc 100%)' }}>
+    <div className="min-h-screen" style={{ background: `linear-gradient(135deg, ${themeColor}10 0%, ${themeColor}20 100%)` }}>
+      {/* Back to Home */}
+      <div className="max-w-5xl mx-auto px-4 py-4">
+        <Link to="/" className="inline-flex items-center text-gray-600 hover:text-teal-600 transition-colors">
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to TeleCareZone
+        </Link>
+      </div>
+
       {/* Hero Section */}
-      <section className="py-16 px-4">
+      <section className="py-8 px-4">
         <div className="max-w-5xl mx-auto">
-          <Card className="bg-white/95 backdrop-blur-sm shadow-2xl">
+          <Card className="bg-white/95 backdrop-blur-sm shadow-2xl border-0">
             <CardContent className="p-8">
               <div className="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-8">
                 <Avatar className="w-32 h-32 border-4 border-white shadow-lg">
                   <AvatarImage src={professional.profile_photo} />
-                  <AvatarFallback className="bg-blue-100 text-blue-600 text-3xl font-bold">
+                  <AvatarFallback 
+                    className="text-3xl font-bold text-white"
+                    style={{ backgroundColor: themeColor }}
+                  >
                     {getInitials()}
                   </AvatarFallback>
                 </Avatar>
                 
                 <div className="flex-1 text-center md:text-left">
-                  <h1 className="text-4xl font-bold text-gray-900 mb-2" style={{ fontFamily: 'Playfair Display, serif' }}>
+                  <h1 className="text-4xl font-bold text-gray-900 mb-2">
                     Dr. {professional.first_name} {professional.last_name}
                   </h1>
-                  <p className="text-xl text-gray-700 mb-2">{professional.speciality}</p>
+                  <p className="text-xl mb-2" style={{ color: themeColor }}>{professional.speciality}</p>
                   <div className="flex flex-wrap gap-2 justify-center md:justify-start mb-4">
                     {professional.ug_qualification && (
-                      <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">
+                      <span 
+                        className="px-3 py-1 rounded-full text-sm font-semibold"
+                        style={{ backgroundColor: `${themeColor}20`, color: themeColor }}
+                      >
                         {professional.ug_qualification}
                       </span>
                     )}
                     {professional.pg_qualification && (
-                      <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">
+                      <span 
+                        className="px-3 py-1 rounded-full text-sm font-semibold"
+                        style={{ backgroundColor: `${themeColor}20`, color: themeColor }}
+                      >
                         {professional.pg_qualification}
                       </span>
                     )}
                     {professional.superspeciality && (
-                      <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">
+                      <span 
+                        className="px-3 py-1 rounded-full text-sm font-semibold"
+                        style={{ backgroundColor: `${themeColor}20`, color: themeColor }}
+                      >
                         {professional.superspeciality}
                       </span>
                     )}
@@ -125,7 +153,7 @@ export default function DoctorLanding({ subdomain: propSubdomain }) {
                       </a>
                     )}
                     {professional.twitter && (
-                      <a href={`https://twitter.com/${professional.twitter.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700">
+                      <a href={`https://twitter.com/${professional.twitter.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-600">
                         <Twitter className="w-6 h-6" />
                       </a>
                     )}
@@ -133,13 +161,14 @@ export default function DoctorLanding({ subdomain: propSubdomain }) {
 
                   <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
                     <div className="text-center">
-                      <p className="text-3xl font-bold text-blue-600">₹{professional.consulting_fees}</p>
+                      <p className="text-3xl font-bold" style={{ color: themeColor }}>₹{professional.consulting_fees}</p>
                       <p className="text-sm text-gray-600">Consultation Fee</p>
                     </div>
                     <Button 
                       size="lg"
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-8 rounded-full"
-                      onClick={() => navigate(paramSubdomain ? `/doctor/${subdomain}/book` : '/book')}
+                      className="text-white px-8 rounded-full"
+                      style={{ backgroundColor: themeColor }}
+                      onClick={() => navigate(`/${professionalSlug}/book`)}
                       data-testid="book-appointment-btn"
                     >
                       <Calendar className="w-5 h-5 mr-2" />
@@ -157,12 +186,12 @@ export default function DoctorLanding({ subdomain: propSubdomain }) {
       {testimonials.length > 0 && (
         <section className="py-16 px-4">
           <div className="max-w-5xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-8 text-gray-900" style={{ fontFamily: 'Playfair Display, serif' }}>
+            <h2 className="text-3xl font-bold text-center mb-8 text-gray-900">
               Patient Testimonials
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {testimonials.map((testimonial) => (
-                <Card key={testimonial.id} className="bg-white/95 backdrop-blur-sm" data-testid={`testimonial-${testimonial.id}`}>
+                <Card key={testimonial.id} className="bg-white/95 backdrop-blur-sm border-0 shadow-lg" data-testid={`testimonial-${testimonial.id}`}>
                   <CardContent className="p-6">
                     <div className="flex items-center mb-4">
                       {[...Array(testimonial.rating)].map((_, i) => (
@@ -180,8 +209,8 @@ export default function DoctorLanding({ subdomain: propSubdomain }) {
       )}
 
       {/* Footer */}
-      <footer className="py-8 text-center text-gray-700">
-        <p className="text-sm">Powered by TeleCareZone</p>
+      <footer className="py-8 text-center text-gray-600">
+        <p className="text-sm">Powered by <Link to="/" className="text-teal-600 hover:underline">TeleCareZone</Link></p>
       </footer>
     </div>
   );

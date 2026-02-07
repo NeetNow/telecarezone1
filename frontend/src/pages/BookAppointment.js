@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,16 +8,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Calendar, Clock, ArrowRight, Loader2 } from 'lucide-react';
-import { format, addDays, addMinutes, setHours, setMinutes } from 'date-fns';
+import { Calendar, Clock, ArrowRight, Loader2, ArrowLeft } from 'lucide-react';
+import { format, addDays, setHours, setMinutes } from 'date-fns';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-export default function BookAppointment({ subdomain: propSubdomain }) {
+export default function BookAppointment() {
   const navigate = useNavigate();
-  const { subdomain: paramSubdomain } = useParams();
-  const subdomain = propSubdomain || paramSubdomain;
+  // Get professional slug from URL path (e.g., /priya-sharma/book)
+  const { professionalSlug } = useParams();
   const [professional, setProfessional] = useState(null);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1); // 1: Select slot, 2: Personal info
@@ -34,14 +34,14 @@ export default function BookAppointment({ subdomain: propSubdomain }) {
   });
 
   useEffect(() => {
-    if (subdomain) {
+    if (professionalSlug) {
       fetchProfessional();
     }
-  }, [subdomain]);
+  }, [professionalSlug]);
 
   const fetchProfessional = async () => {
     try {
-      const response = await axios.get(`${API}/public/professional/${subdomain}`);
+      const response = await axios.get(`${API}/public/professional/${professionalSlug}`);
       setProfessional(response.data);
     } catch (error) {
       console.error('Error fetching professional:', error);
@@ -125,31 +125,37 @@ export default function BookAppointment({ subdomain: propSubdomain }) {
   }
 
   const timeSlots = generateTimeSlots();
+  const themeColor = professional.theme_color || '#0d9488';
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #e0f7fa 0%, #b3e5fc 100%)' }}>
+    <div className="min-h-screen" style={{ background: `linear-gradient(135deg, ${themeColor}10 0%, ${themeColor}20 100%)` }}>
       <div className="max-w-4xl mx-auto px-4 py-12">
-        <Card className="bg-white/95 backdrop-blur-sm shadow-2xl">
+        <Card className="bg-white/95 backdrop-blur-sm shadow-2xl border-0">
           <CardHeader>
             <div className="flex items-center justify-between mb-4">
-              <Button variant="ghost" onClick={() => navigate(paramSubdomain ? `/doctor/${subdomain}` : '/')} data-testid="back-btn">
-                ← Back
-              </Button>
+              <Link 
+                to={`/${professionalSlug}`} 
+                className="inline-flex items-center text-gray-600 hover:text-teal-600 transition-colors"
+                data-testid="back-btn"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Profile
+              </Link>
               <div className="flex items-center space-x-2">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                  step >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
-                }`}>
+                  step >= 1 ? 'text-white' : 'bg-gray-200 text-gray-600'
+                }`} style={step >= 1 ? { backgroundColor: themeColor } : {}}>
                   1
                 </div>
                 <div className="w-12 h-0.5 bg-gray-300"></div>
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                  step >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
-                }`}>
+                  step >= 2 ? 'text-white' : 'bg-gray-200 text-gray-600'
+                }`} style={step >= 2 ? { backgroundColor: themeColor } : {}}>
                   2
                 </div>
               </div>
             </div>
-            <CardTitle className="text-3xl font-bold" style={{ fontFamily: 'Playfair Display, serif' }}>
+            <CardTitle className="text-3xl font-bold text-gray-900">
               Book Appointment with Dr. {professional.first_name} {professional.last_name}
             </CardTitle>
           </CardHeader>
@@ -168,8 +174,8 @@ export default function BookAppointment({ subdomain: propSubdomain }) {
                         onClick={() => handleSlotSelect(slot)}
                         className={`p-3 rounded-lg border-2 transition-all text-left ${
                           selectedSlot?.datetime === slot.datetime
-                            ? 'border-blue-600 bg-blue-50'
-                            : 'border-gray-200 hover:border-blue-300'
+                            ? 'border-teal-600 bg-teal-50'
+                            : 'border-gray-200 hover:border-teal-300'
                         }`}
                         data-testid={`time-slot-${index}`}
                       >
@@ -184,7 +190,8 @@ export default function BookAppointment({ subdomain: propSubdomain }) {
                 <div className="flex justify-end pt-4 border-t">
                   <Button
                     onClick={handleStepOne}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    className="text-white"
+                    style={{ backgroundColor: themeColor }}
                     data-testid="continue-to-info-btn"
                   >
                     Continue to Personal Info
@@ -196,15 +203,16 @@ export default function BookAppointment({ subdomain: propSubdomain }) {
 
             {step === 2 && (
               <form onSubmit={handleSubmit} className="space-y-6" data-testid="step-2-personal-info">
-                <div className="bg-blue-50 p-4 rounded-lg mb-6">
-                  <p className="text-sm font-semibold text-blue-900">
+                <div className="p-4 rounded-lg mb-6" style={{ backgroundColor: `${themeColor}10` }}>
+                  <p className="text-sm font-semibold" style={{ color: themeColor }}>
                     Selected Slot: {selectedSlot?.display}
                   </p>
                   <Button
                     type="button"
                     variant="link"
                     onClick={() => setStep(1)}
-                    className="text-blue-600 p-0 h-auto"
+                    className="p-0 h-auto"
+                    style={{ color: themeColor }}
                     data-testid="change-slot-btn"
                   >
                     Change Slot
@@ -334,7 +342,8 @@ export default function BookAppointment({ subdomain: propSubdomain }) {
                   <Button
                     type="submit"
                     disabled={loading}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    className="text-white"
+                    style={{ backgroundColor: themeColor }}
                     data-testid="proceed-to-payment-btn"
                   >
                     {loading ? (

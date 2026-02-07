@@ -7,96 +7,91 @@ TeleCareZone is a production-grade SAAS platform for healthcare professionals to
 
 ### 1. Main Website
 - **Homepage**: Modern, professional design inspired by mfine.co
-  - Hero section with CTA buttons
-  - Stats bar (10L+ consultations, 500+ doctors, 4.8 rating, 24/7 availability)
-  - Specialties grid (General Physician, Dermatologist, Psychiatrist, etc.)
-  - How it Works section (3 steps)
-  - Healthcare Experts section displaying approved doctors
-  - Testimonials section
-  - CTA banner
-  - Professional footer with navigation links
+- **Static Pages**: About, Blogs, Contact, Privacy Policy, Terms of Service
 
-- **Static Pages**:
-  - `/about` - About TeleCareZone
-  - `/blogs` - Healthcare articles with category filtering
-  - `/contact` - Contact form and company information
-  - `/privacy-policy` - Privacy Policy
-  - `/terms` - Terms of Service
-
-### 2. Expert Subdomains
-- Each approved expert gets a personalized landing page
-- URL format: `/doctor/{subdomain}` (e.g., `/doctor/priya-sharma`)
-- Customizable theme colors per doctor
+### 2. Professional Landing Pages (PATH-BASED ROUTING)
+- **URL Format**: `/{professional-slug}` (e.g., `/priya-sharma`)
+- **Booking URL**: `/{professional-slug}/book` (e.g., `/priya-sharma/book`)
+- **NO SUBDOMAINS** - All routing is path-based for simplicity and portability
+- Works on any domain without DNS configuration
 
 ### 3. Admin Dashboard
 - **Login**: `/admin/login`
 - **Credentials**: `teleadmin` / `teleadm@2026`
-- **Features**:
-  - List of all doctors
-  - Analytics (week/month/quarter revenue)
-  - Individual doctor analytics
-  - Leads from "Join as Expert" form
-  - 27-field onboarding form for new doctors
 
 ## Technology Stack
 - **Frontend**: React 18, TailwindCSS, Shadcn UI, React Router
 - **Backend**: Core PHP 8.0+, RESTful API
-- **Database**: MySQL/MariaDB
+- **Database**: MySQL
 - **Deployment**: Hostinger shared hosting compatible
 
-## Design System
-- **Primary Color**: Teal (#0d9488)
-- **Secondary Color**: Cyan (#06b6d4)
-- **Font**: System fonts
-- **UI Library**: Shadcn UI components
+
+```
+
+## Key URLs (All Relative Paths)
+```
+/                    → Homepage
+/about               → About page
+/blogs               → Blog articles
+/contact             → Contact page
+/privacy-policy      → Privacy Policy
+/terms               → Terms of Service
+/join-expert         → Expert registration form
+/admin/login         → Admin login
+/admin/*             → Admin dashboard
+/{slug}              → Professional landing page
+/{slug}/book         → Appointment booking
+/payment/{id}        → Payment page
+/confirmation/{id}   → Confirmation page
+```
 
 ## API Endpoints
 - `GET /api/` - Health check
 - `GET /api/professionals/approved` - List approved doctors
-- `GET /api/public/professional/{subdomain}` - Get doctor by subdomain
+- `GET /api/public/professional/{slug}` - Get doctor by slug
 - `POST /api/admin/login` - Admin authentication
-- `GET /api/admin/onboarding/list` - List all professionals (admin)
-- `POST /api/admin/onboarding/create` - Create new professional (admin)
 
-## Database Schema
-- `professionals` - 27+ fields for doctor profiles
-- `admin_users` - Admin credentials
-- `patients` - Patient records
-- `appointments` - Booking records
-- `payments` - Payment transactions
-- `testimonials` - Patient reviews
+## Deployment Notes
 
-## Mocked Integrations (Pending API Keys)
-- Razorpay (Payment Gateway)
-- Google Meet (Video Consultations)
-- Fast2SMS (WhatsApp/SMS Notifications)
+### .htaccess Configuration
+- All paths are relative (no RewriteBase)
+- Works in any directory on any domain
+- API routes: `/api/*` → `api_index.php`
+- Frontend routes: Everything else → `index.html`
+
+### Files to Upload to Hostinger
+```
+public_html/
+├── index.html          ← React app entry
+├── api_index.php       ← PHP API router
+├── .htaccess           ← Apache rewrite rules
+├── static/             ← CSS/JS assets
+├── api/                ← PHP API endpoints
+├── config/             ← Database configuration
+├── services/           ← PHP services
+└── vendor/             ← PHP dependencies
+```
 
 ---
 
 ## What's Implemented ✅
 
-### Session: January 5, 2026
-1. ✅ Environment setup (PHP 8, MariaDB, database schema)
-2. ✅ Homepage redesign (mfine.co inspired, teal color scheme)
-3. ✅ All 3 approved doctors displaying correctly
-4. ✅ Routes added for About, Blogs, Contact, Privacy, Terms
-5. ✅ Shared Header/Footer components
-6. ✅ Footer navigation links working
-7. ✅ Admin credentials updated (teleadmin/teleadm@2026)
-8. ✅ Documentation cleanup (removed XAMPP guide, etc.)
-9. ✅ Domain references updated to telecarezone.com
-10. ✅ All 17 automated tests passing
+### February 5, 2026
+1. ✅ **Removed subdomain routing** - All professional pages now use path-based URLs
+2. ✅ **Updated App.js** - Simplified routing without subdomain detection
+3. ✅ **Updated DoctorLanding.js** - Uses `/:professionalSlug` parameter
+4. ✅ **Updated BookAppointment.js** - Uses `/:professionalSlug/book` parameter
+5. ✅ **Updated MainLanding.js** - Doctor cards link to `/{slug}` instead of `/doctor/{slug}`
+6. ✅ **Updated Admin pages** - Show relative URLs `/{slug}` instead of `{slug}.domain.com`
+7. ✅ **Updated .htaccess** - All relative paths, works on any domain/directory
+8. ✅ **Rebuilt React app** - Production build with new routing
 
 ---
 
 ## Backlog / Future Tasks
 
-### P0 - Critical
-- None currently
-
 ### P1 - High Priority
-- Full appointment booking flow on expert landing pages
-- Actual Razorpay integration (requires API keys)
+- Razorpay payment integration (requires API keys)
 - Google Meet integration (requires API keys)
 - Email/WhatsApp notifications (requires API keys)
 
@@ -104,33 +99,8 @@ TeleCareZone is a production-grade SAAS platform for healthcare professionals to
 - Doctor profile photo uploads
 - Patient dashboard
 - Appointment history
-- Digital prescriptions
-
-### P3 - Low Priority
-- Mobile app wrapper
-- Push notifications
-- Multi-language support
-
----
-
-## Deployment
-
-### Files to Deploy
-- All files in `/app/` root directory
-- See `HOSTINGER_DEPLOYMENT_GUIDE.md` for detailed instructions
-- See `DEPLOYMENT_CHECKLIST.md` for quick reference
-
-### Environment Variables (config/.env)
-```
-DB_HOST=localhost
-DB_USER=your_username
-DB_PASS=your_password
-DB_NAME=telecarezone_db
-JWT_SECRET=your_jwt_secret
-```
 
 ---
 
 ## Test Credentials
 - **Admin**: teleadmin / teleadm@2026
-- **Test URL**: https://telecarezone.com/admin/login

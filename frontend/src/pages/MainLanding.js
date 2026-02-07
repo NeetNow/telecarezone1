@@ -423,7 +423,7 @@ export default function MainLanding() {
                         <Button 
                           className="text-white rounded-xl"
                           style={{ backgroundColor: prof.theme_color || '#0d9488' }}
-                          onClick={() => navigate(`/doctor/${prof.subdomain}`)}
+                          onClick={() => navigate(`/${prof.subdomain}`)}
                           data-testid={`view-profile-btn-${prof.id}`}
                         >
                           Consult Now

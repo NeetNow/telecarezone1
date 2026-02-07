@@ -282,7 +282,7 @@ export default function DoctorManagement() {
                             <Edit className="w-5 h-5" />
                           </button>
                           <button
-                            onClick={() => window.open(`/doctor/${doctor.subdomain}`, '_blank')}
+                            onClick={() => window.open(`/${doctor.subdomain}`, '_blank')}
                             className="text-purple-600 hover:text-purple-900"
                             title="View Landing Page"
                           >

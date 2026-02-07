@@ -6,7 +6,7 @@
  * 
  * This class provides a singleton database connection that works with both:
  * - MySQL/MariaDB (default for XAMPP, Hostinger)
- * - MongoDB (optional, for Hostinger platform)
+ * - MongoDB (optional, for Emergent platform)
  * 
  * The connection type is automatically detected based on environment or
  * can be explicitly set via DB_TYPE environment variable.
@@ -57,7 +57,7 @@ class Database {
     // ========================================================================
     // MONGODB CONFIGURATION
     // ========================================================================
-    // These settings are for Hostinger platform or if you want to use MongoDB
+    // These settings are for Emergent platform or if you want to use MongoDB
     private $mongo_url = 'mongodb://localhost:27017';
     private $mongo_db = 'telecarezone_db';
     

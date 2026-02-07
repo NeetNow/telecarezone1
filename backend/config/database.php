@@ -1,7 +1,7 @@
 <?php
 /**
  * Database Configuration
- * Compatible with MySQL (Hostinger)
+ * Compatible with both MongoDB (Emergent) and MySQL (Hostinger)
  */
 
 class Database {
@@ -14,6 +14,10 @@ class Database {
     private $mysql_user = 'root';
     private $mysql_pass = '';
     private $mysql_db = 'telecarezone_db';
+    
+    // For Emergent MongoDB
+    private $mongo_url = 'mongodb://localhost:27017';
+    private $mongo_db = 'telecarezone_db';
     
     private function __construct() {
         // Auto-detect database type
@@ -35,6 +39,15 @@ class Database {
             $this->db = 'mysql';
         } catch(PDOException $e) {
             die(json_encode(['error' => 'Database connection failed: ' . $e->getMessage()]));
+        }
+    }
+    
+    private function connectMongoDB() {
+        try {
+            $this->connection = new MongoDB\Client($this->mongo_url);
+            $this->db = $this->connection->selectDatabase($this->mongo_db);
+        } catch(Exception $e) {
+            die(json_encode(['error' => 'MongoDB connection failed: ' . $e->getMessage()]));
         }
     }
     

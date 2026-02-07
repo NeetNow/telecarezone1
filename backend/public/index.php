@@ -1,7 +1,7 @@
 <?php
 /**
  * TeleCareZone API - Main Router
- * Core PHP Backend - Compatible with Hostinger
+ * Core PHP Backend - Compatible with Hostinger and Emergent
  */
 
 // Load configuration
