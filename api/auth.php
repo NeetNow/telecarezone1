@@ -47,12 +47,12 @@ function adminLogin($data) {
     if ($db === 'mysql') {
         // MySQL query
         $conn = Database::getInstance()->getConnection();
-        $stmt = $conn->prepare('SELECT * FROM admin_users WHERE username = ?');
+        $stmt = $conn->prepare('SELECT * FROM admin_user WHERE username = ?');
         $stmt->execute([$data['username']]);
         $admin = $stmt->fetch(PDO::FETCH_ASSOC);
     } else {
         // MongoDB query
-        $admin = $db->admin_users->findOne(['username' => $data['username']]);
+        $admin = $db->admin_user->findOne(['username' => $data['username']]);
         if ($admin) {
             $admin = json_decode(json_encode($admin), true);
         }
