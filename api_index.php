@@ -87,13 +87,28 @@ $method = $_SERVER['REQUEST_METHOD'];
 // Get the request URI and clean it
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-// Remove any prefix (like /api) from the URI
-$uri = str_replace('/api', '', $uri);
+
+// Remove the /api prefix if present
+if (strpos($uri, '/api') === 0) {
+    $uri = substr($uri, 4);
+}
+
+// Remove the directory name if present (for subdirectory installations)
+$scriptName = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+if ($scriptName !== '/' && $scriptName !== '') {
+    $uri = str_replace($scriptName, '', $uri);
+}
+
 $uri = rtrim($uri, '/');
 
 // Split URI into segments for routing
 // Example: /professionals/123 becomes ['', 'professionals', '123']
 $segments = explode('/', trim($uri, '/'));
+
+// If the first segment is 'api', remove it (this handles cases where /api wasn't properly removed)
+if (!empty($segments[0]) && $segments[0] === 'api') {
+    array_shift($segments);
+}
 
 // Get request body for POST/PUT/DELETE requests
 $requestBody = file_get_contents('php://input');
@@ -105,6 +120,8 @@ $queryParams = $_GET;
 
 // Log the incoming request for debugging
 error_log("Method: $method, URI: $uri, Segments: " . json_encode($segments));
+error_log("SCRIPT_NAME: " . $_SERVER['SCRIPT_NAME']);
+error_log("REQUEST_URI: " . $_SERVER['REQUEST_URI']);
 
 // ============================================================================
 // STEP 5: HELPER FUNCTIONS

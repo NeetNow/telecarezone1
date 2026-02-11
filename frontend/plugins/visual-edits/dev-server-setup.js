@@ -38,6 +38,7 @@ function setupDevServer(config) {
         return true;
       }
 
+
       // Allow all appspot.com subdomains (for App Engine)
       if (origin.match(/^https:\/\/([a-zA-Z0-9-]+\.)*appspot\.com$/)) {
         return true;
@@ -459,16 +460,6 @@ function setupDevServer(config) {
           // Write the updated content
           fs.writeFileSync(targetFile, code, "utf8");
 
-          // Commit changes to git with timestamp
-          const timestamp = Date.now();
-          try {
-            // Use -c flag for per-invocation git config to avoid modifying any config
-            execSync(`git -c user.name="visual-edit" -c user.email="support@telecarezone.com" add "${targetFile}"`);
-            execSync(`git -c user.name="visual-edit" -c user.email="support@telecarezone.com" commit -m "visual_edit_${timestamp}"`);
-          } catch (gitError) {
-            console.error(`Git commit failed: ${gitError.message}`);
-            // Continue even if git fails - file write succeeded
-          }
 
           // Clean up backup file after successful write and commit
           if (fs.existsSync(backupFile)) {

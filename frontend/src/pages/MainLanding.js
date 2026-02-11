@@ -82,7 +82,12 @@ export default function MainLanding() {
   const fetchProfessionals = async () => {
     try {
       const response = await axios.get(`${API}/professionals/approved`);
-      setProfessionals(response.data);
+      if (Array.isArray(response.data)) {
+        setProfessionals(response.data);
+      } else {
+        console.error('Unexpected response format:', response.data);
+        setProfessionals([]);
+      }
     } catch (error) {
       console.error('Error fetching professionals:', error);
     } finally {
@@ -423,7 +428,7 @@ export default function MainLanding() {
                         <Button 
                           className="text-white rounded-xl"
                           style={{ backgroundColor: prof.theme_color || '#0d9488' }}
-                          onClick={() => navigate(`/${prof.subdomain}`)}
+                          onClick={() => navigate(`/doctor/${prof.subdomain}`)}
                           data-testid={`view-profile-btn-${prof.id}`}
                         >
                           Consult Now

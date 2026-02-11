@@ -32,10 +32,11 @@ export default function AdminLogin() {
       const response = await axios.post(`${API}/admin/login`, credentials);
       localStorage.setItem('admin_token', response.data.access_token);
       toast.success('Login successful!');
-      navigate('/admin/dashboard');
+      navigate('/admin');
     } catch (error) {
       console.error('Login error:', error);
-      toast.error('Invalid credentials. Please try again.');
+      const errorMessage = error.response?.data?.error || error.message || 'Invalid credentials. Please try again.';
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
