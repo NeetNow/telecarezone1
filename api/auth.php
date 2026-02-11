@@ -1,6 +1,7 @@
 <?php
 /**
- * Authentication API Handlers
+ * Authentication API Handlers 
+ * 
  */
 
 function handleAdminRoutes($segments, $method, $data, $queryParams) {
