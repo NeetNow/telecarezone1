@@ -1,6 +1,6 @@
 # Environment Configuration
 config/.env
-.env
+
 
 # Uploaded Files
 uploads/*
