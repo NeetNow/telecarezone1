@@ -4,8 +4,10 @@
  * Works on both Emergent and Hostinger
  */
 
-// Load Composer autoloader
-require_once __DIR__ . '/../vendor/autoload.php';
+// Load Composer autoloader (only if exists)
+if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
+    require_once __DIR__ . '/../vendor/autoload.php';
+}
 
 // Error reporting for development
 error_reporting(E_ALL);
