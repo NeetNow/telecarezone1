@@ -123,11 +123,22 @@ function getProfessionalBySubdomain($subdomain) {
     
     if ($db === 'mysql') {
         $conn = Database::getInstance()->getConnection();
-        $stmt = $conn->prepare('SELECT * FROM professionals WHERE subdomain = ? AND status = ?');
-        $stmt->execute([$subdomain, 'approved']);
+        // First try to find by subdomain, then by ID (to handle both cases)
+        $stmt = $conn->prepare('SELECT * FROM professionals WHERE (subdomain = ? OR id = ?) AND status = ?');
+        $stmt->execute([$subdomain, $subdomain, 'approved']);
         $professional = $stmt->fetch(PDO::FETCH_ASSOC);
     } else {
-        $professional = $db->professionals->findOne(['subdomain' => $subdomain, 'status' => 'approved']);
+        $professional = $db->professionals->findOne([
+            '$and' => [
+                [
+                    '$or' => [
+                        ['subdomain' => $subdomain],
+                        ['id' => $subdomain]
+                    ]
+                ],
+                ['status' => 'approved']
+            ]
+        ]);
         if ($professional) {
             $professional = json_decode(json_encode($professional), true);
             unset($professional['_id']);
