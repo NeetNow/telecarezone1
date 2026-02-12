@@ -99,7 +99,7 @@ class Database {
             }
         }
         
-        // Set database credentials (with fallbacks)
+                // Set database credentials (with fallbacks)
         $this->mysql_host = $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?: '193.203.184.246';
         $this->mysql_user = $_ENV['DB_USER'] ?? getenv('DB_USER') ?: 'u913267094_rootuser';
         $this->mysql_pass = $_ENV['DB_PASS'] ?? getenv('DB_PASS') ?: 'Telecaredev@2025';
