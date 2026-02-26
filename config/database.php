@@ -57,7 +57,7 @@ class Database {
     // ========================================================================
     // MONGODB CONFIGURATION
     // ========================================================================
-    // These settings are for Emergent platform or if you want to use MongoDB
+    
     private $mongo_url = 'mongodb://localhost:27017';
     private $mongo_db = 'telecarezone_db';
     
