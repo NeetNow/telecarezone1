@@ -48,12 +48,12 @@ function adminLogin($data) {
     if ($db === 'mysql') {
         // MySQL query
         $conn = Database::getInstance()->getConnection();
-        $stmt = $conn->prepare('SELECT * FROM admin_user WHERE username = ?');
+        $stmt = $conn->prepare('SELECT * FROM admin_users WHERE username = ?');
         $stmt->execute([$data['username']]);
         $admin = $stmt->fetch(PDO::FETCH_ASSOC);
     } else {
         // MongoDB query
-        $admin = $db->admin_user->findOne(['username' => $data['username']]);
+        $admin = $db->admin_users->findOne(['username' => $data['username']]);
         if ($admin) {
             $admin = json_decode(json_encode($admin), true);
         }
@@ -76,23 +76,23 @@ function createDefaultAdmin() {
     if ($db === 'mysql') {
         $conn = Database::getInstance()->getConnection();
         // Check if admin exists
-        $stmt = $conn->prepare('SELECT id FROM admin_user WHERE username = ?');
+        $stmt = $conn->prepare('SELECT id FROM admin_users WHERE username = ?');
         $stmt->execute(['admin']);
         if ($stmt->fetch()) {
             sendResponse(['message' => 'Admin already exists']);
         }
         
         // Create admin
-        $stmt = $conn->prepare('INSERT INTO admin_user (username, password) VALUES (?, ?)');
+        $stmt = $conn->prepare('INSERT INTO admin_users (username, password) VALUES (?, ?)');
         $stmt->execute(['admin', password_hash('admin123', PASSWORD_BCRYPT)]);
     } else {
         // MongoDB
-        $existing = $db->admin_user->findOne(['username' => 'admin']);
+        $existing = $db->admin_users->findOne(['username' => 'admin']);
         if ($existing) {
             sendResponse(['message' => 'Admin already exists']);
         }
         
-        $db->admin_user->insertOne([
+        $db->admin_users->insertOne([
             'username' => 'admin',
             'password' => password_hash('admin123', PASSWORD_BCRYPT),
             'created_at' => date('Y-m-d H:i:s')

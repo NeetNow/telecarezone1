@@ -6,7 +6,7 @@
  * 
  * This class provides a singleton database connection that works with both:
  * - MySQL/MariaDB (default for XAMPP, Hostinger)
- * - MongoDB (optional, for Emergent platform)
+ * - MongoDB (optional)
  * 
  * The connection type is automatically detected based on environment or
  * can be explicitly set via DB_TYPE environment variable.

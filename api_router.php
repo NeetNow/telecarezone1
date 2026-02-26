@@ -9,7 +9,6 @@
  * 
  * Compatible with:
  * - Local XAMPP/WAMP server
- * - Emergent platform (with Python bridge)
  * - Hostinger shared hosting
  * 
  * @author TeleCareZone Development Team

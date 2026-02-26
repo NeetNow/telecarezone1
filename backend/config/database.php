@@ -1,7 +1,7 @@
 <?php
 /**
  * Database Configuration
- * Compatible with both MongoDB (Emergent) and MySQL (Hostinger)
+ * Compatible with both MongoDB  and MySQL 
  */
 
 class Database {
@@ -15,7 +15,7 @@ class Database {
     private $mysql_pass = '';
     private $mysql_db = 'telecarezone_db';
     
-    // For Emergent MongoDB
+    // For  MongoDB
     private $mongo_url = 'mongodb://localhost:27017';
     private $mongo_db = 'telecarezone_db';
     

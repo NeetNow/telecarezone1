@@ -1,7 +1,7 @@
 <?php
 /**
  * Application Configuration
- * Works on both Emergent and Hostinger
+ * Works on both  Hostinger
  */
 
 // Load Composer autoloader

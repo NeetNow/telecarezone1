@@ -19,7 +19,7 @@ export default function About() {
             About <span className="text-teal-600">TeleCareZone</span>
           </h1>
           <p className="text-xl text-gray-600 mb-8">
-            India's Leading Telemedicine Platform Connecting Patients with Verified Healthcare Professionals
+            hello Telecarezone
           </p>
         </div>
       </section>

@@ -36,7 +36,7 @@ function AppContent() {
     
     // Check if subdomain exists (e.g., doctorname.mykitchenfarm.com)
     // But skip common subdomains like 'www', 'preview', 'localhost' and preview URLs
-    const skipSubdomains = ['www', 'preview', 'localhost'];
+    const skipSubdomains = ['www', 'preview', 'localhost', 'dev', 'staging'];
     const potentialSubdomain = parts[0];
     
     // Skip if it's a preview URL (contains 'preview.mykitchenfarm.com')
