@@ -28,6 +28,8 @@ export default function JoinExpert() {
     instagram: '',
     youtube: '',
     twitter: '',
+    linkedin: '',
+    facebook: '',
     consulting_fees: ''
   });
 
@@ -214,7 +216,7 @@ export default function JoinExpert() {
               {/* Social Media */}
               <div className="space-y-4">
                 <h3 className="text-xl font-semibold text-gray-900">Social Media (Optional)</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="instagram">Instagram Username</Label>
                     <Input
@@ -246,6 +248,28 @@ export default function JoinExpert() {
                       onChange={handleChange}
                       placeholder="@username"
                       data-testid="input-twitter"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="linkedin">LinkedIn Username</Label>
+                    <Input
+                      id="linkedin"
+                      name="linkedin"
+                      value={formData.linkedin}
+                      onChange={handleChange}
+                      placeholder="username"
+                      data-testid="input-linkedin"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="facebook">Facebook Username</Label>
+                    <Input
+                      id="facebook"
+                      name="facebook"
+                      value={formData.facebook}
+                      onChange={handleChange}
+                      placeholder="username"
+                      data-testid="input-facebook"
                     />
                   </div>
                 </div>
