@@ -164,34 +164,149 @@ function createProfessional($data) {
     // Generate subdomain
     $subdomain = generateSubdomain($data['first_name'], $data['last_name']);
     
+    // Only include essential fields
     $professional = [
         'id' => uniqid('prof_'),
         'first_name' => $data['first_name'],
         'last_name' => $data['last_name'],
         'phone' => $data['phone'],
         'email' => $data['email'],
-        'speciality' => $data['speciality'] ?? null,
-        'ug_qualification' => $data['ug_qualification'] ?? null,
-        'pg_qualification' => $data['pg_qualification'] ?? null,
-        'superspeciality' => $data['superspeciality'] ?? null,
-        'area_of_expertise' => $data['area_of_expertise'] ?? null,
-        'instagram' => $data['instagram'] ?? null,
-        'youtube' => $data['youtube'] ?? null,
-        'twitter' => $data['twitter'] ?? null,
         'consulting_fees' => floatval($data['consulting_fees']),
         'subdomain' => $subdomain,
         'status' => 'approved',
         'created_at' => date('Y-m-d H:i:s')
     ];
     
+    // Add optional fields only if they're provided
+    $optionalFields = [
+        'speciality', 'ug_qualification', 'pg_qualification', 'superspeciality',
+        'area_of_expertise', 'instagram', 'youtube', 'twitter', 'linkedin', 'facebook'
+    ];
+    
+    foreach ($optionalFields as $field) {
+        if (!empty($data[$field])) {
+            $professional[$field] = $data[$field];
+        }
+    }
+    
     $db = Database::getInstance()->getDB();
     
     if ($db === 'mysql') {
         $conn = Database::getInstance()->getConnection();
-        $fields = implode(', ', array_keys($professional));
-        $placeholders = implode(', ', array_fill(0, count($professional), '?'));
+        
+        // Check what columns exist
+        $stmt = $conn->prepare("DESCRIBE professionals");
+        $stmt->execute();
+        $existingColumns = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
+        
+        // Filter to only existing columns
+        $filteredProfessional = array_intersect_key($professional, array_flip($existingColumns));
+        
+        $fields = implode(', ', array_keys($filteredProfessional));
+        $placeholders = implode(', ', array_fill(0, count($filteredProfessional), '?'));
         $stmt = $conn->prepare("INSERT INTO professionals ({$fields}) VALUES ({$placeholders})");
-        $stmt->execute(array_values($professional));
+        $stmt->execute(array_values($filteredProfessional));
+    } else {
+        $db->professionals->insertOne($professional);
+    }
+    
+    unset($professional['_id']);
+    sendResponse($professional, 201);
+}
+
+function generateSubdomain($firstName, $lastName) {
+    $subdomain = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $firstName . $lastName));
+    
+    // Check if subdomain exists and add number if needed
+    $db = Database::getInstance()->getDB();
+    $originalSubdomain = $subdomain;
+    $counter = 1;
+    
+    while (true) {
+        if ($db === 'mysql') {
+            $conn = Database::getInstance()->getConnection();
+            $stmt = $conn->prepare('SELECT id FROM professionals WHERE subdomain = ?');
+            $stmt->execute([$subdomain]);
+            $exists = $stmt->fetch();
+        } else {
+            $exists = $db->professionals->findOne(['subdomain' => $subdomain]);
+        }
+        
+        if (!$exists) break;
+        
+        $subdomain = $originalSubdomain . $counter;
+        $counter++;
+    }
+    
+    return $subdomain;
+}
+
+function submitProfessionalApplication($data) {
+    error_log("submitProfessionalApplication called with data: " . json_encode($data));
+    
+    $required = ['first_name', 'last_name', 'phone', 'email'];
+    foreach ($required as $field) {
+        if (!isset($data[$field])) {
+            sendError("Field {$field} is required", 400);
+        }
+    }
+    
+    $subdomain = generateSubdomain($data['first_name'], $data['last_name']);
+    
+    // ONLY include essential fields that we know exist
+    $professional = [
+        'id' => uniqid('prof_'),
+        'first_name' => $data['first_name'],
+        'last_name' => $data['last_name'],
+        'phone' => $data['phone'],
+        'email' => $data['email'],
+        'subdomain' => $subdomain,
+        'status' => 'pending',
+        'created_at' => date('Y-m-d H:i:s')
+    ];
+    
+    // Add optional social media fields if provided
+    $socialFields = ['instagram', 'youtube', 'twitter', 'linkedin', 'facebook'];
+    foreach ($socialFields as $field) {
+        if (!empty($data[$field])) {
+            $professional[$field] = $data[$field];
+        }
+    }
+    
+    // Add other optional fields
+    $optionalFields = ['speciality', 'ug_qualification', 'pg_qualification', 'superspeciality', 'area_of_expertise', 'consulting_fees'];
+    foreach ($optionalFields as $field) {
+        if (!empty($data[$field])) {
+            $professional[$field] = $field === 'consulting_fees' ? floatval($data[$field]) : $data[$field];
+        }
+    }
+    
+    error_log("Professional data (essential only): " . json_encode($professional));
+    
+    $db = Database::getInstance()->getDB();
+    
+    if ($db === 'mysql') {
+        $conn = Database::getInstance()->getConnection();
+        
+        // Check what columns exist
+        $stmt = $conn->prepare("DESCRIBE professionals");
+        $stmt->execute();
+        $existingColumns = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
+        
+        error_log("Existing columns: " . json_encode($existingColumns));
+        
+        // Filter to only existing columns
+        $filteredProfessional = array_intersect_key($professional, array_flip($existingColumns));
+        
+        error_log("Filtered professional data: " . json_encode($filteredProfessional));
+        
+        $fields = implode(', ', array_keys($filteredProfessional));
+        $placeholders = implode(', ', array_fill(0, count($filteredProfessional), '?'));
+        
+        error_log("SQL: INSERT INTO professionals ({$fields}) VALUES ({$placeholders})");
+        
+        $stmt = $conn->prepare("INSERT INTO professionals ({$fields}) VALUES ({$placeholders})");
+        $stmt->execute(array_values($filteredProfessional));
     } else {
         $db->professionals->insertOne($professional);
     }
@@ -228,78 +343,5 @@ function updateProfessional($id, $data) {
     
     // Get updated professional
     getProfessionalById($id);
-}
-
-function submitProfessionalApplication($data) {
-    $required = ['first_name', 'last_name', 'phone', 'email'];
-    foreach ($required as $field) {
-        if (!isset($data[$field])) {
-            sendError("Field {$field} is required", 400);
-        }
-    }
-    
-    $subdomain = generateSubdomain($data['first_name'], $data['last_name']);
-    
-    $professional = [
-        'id' => uniqid('prof_'),
-        'first_name' => $data['first_name'],
-        'last_name' => $data['last_name'],
-        'phone' => $data['phone'],
-        'email' => $data['email'],
-        'speciality' => $data['speciality'] ?? null,
-        'ug_qualification' => $data['ug_qualification'] ?? null,
-        'pg_qualification' => $data['pg_qualification'] ?? null,
-        'superspeciality' => $data['superspeciality'] ?? null,
-        'area_of_expertise' => $data['area_of_expertise'] ?? null,
-        'instagram' => $data['instagram'] ?? null,
-        'youtube' => $data['youtube'] ?? null,
-        'twitter' => $data['twitter'] ?? null,
-        'consulting_fees' => floatval($data['consulting_fees'] ?? 0),
-        'subdomain' => $subdomain,
-        'status' => 'pending',
-        'created_at' => date('Y-m-d H:i:s')
-    ];
-    
-    $db = Database::getInstance()->getDB();
-    
-    if ($db === 'mysql') {
-        $conn = Database::getInstance()->getConnection();
-        $fields = implode(', ', array_keys($professional));
-        $placeholders = implode(', ', array_fill(0, count($professional), '?'));
-        $stmt = $conn->prepare("INSERT INTO professionals ({$fields}) VALUES ({$placeholders})");
-        $stmt->execute(array_values($professional));
-    } else {
-        $db->professionals->insertOne($professional);
-    }
-    
-    unset($professional['_id']);
-    sendResponse($professional, 201);
-}
-
-function generateSubdomain($firstName, $lastName) {
-    $subdomain = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $firstName . $lastName));
-    
-    // Check if subdomain exists and add number if needed
-    $db = Database::getInstance()->getDB();
-    $originalSubdomain = $subdomain;
-    $counter = 1;
-    
-    while (true) {
-        if ($db === 'mysql') {
-            $conn = Database::getInstance()->getConnection();
-            $stmt = $conn->prepare('SELECT id FROM professionals WHERE subdomain = ?');
-            $stmt->execute([$subdomain]);
-            $exists = $stmt->fetch();
-        } else {
-            $exists = $db->professionals->findOne(['subdomain' => $subdomain]);
-        }
-        
-        if (!$exists) break;
-        
-        $subdomain = $originalSubdomain . $counter;
-        $counter++;
-    }
-    
-    return $subdomain;
 }
 ?>
