@@ -10,10 +10,10 @@ class Database {
     private $db;
     
     // For Hostinger MySQL
-    private $mysql_host = 'localhost';
-    private $mysql_user = 'root';
-    private $mysql_pass = '';
-    private $mysql_db = 'telecarezone_db';
+    private $mysql_host = 'your_db_host';
+    private $mysql_user = 'your_db_user';
+    private $mysql_pass = 'your_db_password';
+    private $mysql_db = 'your_db_name';
     
     // For  MongoDB
     private $mongo_url = 'mongodb://localhost:27017';
