@@ -89,21 +89,22 @@ class Database {
      */
     private function loadEnvironmentVariables() {
         // Load from .env file if exists
-        $envFile = __DIR__ . '/.env';
+        $envFile = __DIR__ . '/../.env';
         if (file_exists($envFile)) {
             $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
             foreach ($lines as $line) {
                 if (strpos(trim($line), '#') === 0) continue;
                 list($key, $value) = explode('=', $line, 2);
                 $_ENV[trim($key)] = trim($value);
+                putenv(trim($key) . '=' . trim($value)); // Also set for getenv()
             }
         }
         
                 // Set database credentials (with fallbacks)
-        $this->mysql_host = $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?: '193.203.184.246';
-        $this->mysql_user = $_ENV['DB_USER'] ?? getenv('DB_USER') ?: 'u913267094_rootuser';
-        $this->mysql_pass = $_ENV['DB_PASS'] ?? getenv('DB_PASS') ?: 'Telecaredev@2025';
-        $this->mysql_db = $_ENV['DB_NAME'] ?? getenv('DB_NAME') ?: 'u913267094_telecaredev';
+        $this->mysql_host = $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?: 'your_db_host';
+        $this->mysql_user = $_ENV['DB_USER'] ?? getenv('DB_USER') ?: 'your_db_user';
+        $this->mysql_pass = $_ENV['DB_PASS'] ?? getenv('DB_PASS') ?: 'your_db_password';
+        $this->mysql_db = $_ENV['DB_NAME'] ?? getenv('DB_NAME') ?: 'your_db_name';
     }
     
     private function connectMySQL() {
