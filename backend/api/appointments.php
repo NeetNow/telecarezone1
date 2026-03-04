@@ -13,6 +13,13 @@ function handleAppointmentsRoutes($segments, $method, $data, $queryParams) {
         } else {
             sendError('Method not allowed', 405);
         }
+    } elseif ($action === 'check-availability') {
+        // GET /appointments/check-availability?professional_id=xxx&date=xxx
+        if ($method === 'GET') {
+            checkSlotAvailability($queryParams);
+        } else {
+            sendError('Method not allowed', 405);
+        }
     } elseif ($action === 'professional' && isset($segments[2])) {
         // GET /appointments/professional/{id}
         JWTService::verifyToken();
@@ -37,6 +44,13 @@ function createAppointment($data) {
             sendError("Field {$field} is required", 400);
         }
     }
+
+    $slotTs = strtotime($data['appointment_datetime']);
+    if (!$slotTs) {
+        sendError('Invalid appointment_datetime', 400);
+    }
+    $slotStart = date('Y-m-d H:i:00', $slotTs);
+    $slotEnd = date('Y-m-d H:i:00', strtotime($slotStart . ' +1 minute'));
     
     $db = Database::getInstance()->getDB();
     
@@ -48,10 +62,27 @@ function createAppointment($data) {
         if (!$stmt->fetch()) {
             sendError('Professional not found', 404);
         }
+
+        // Prevent double booking (same professional + same minute)
+        $stmt = $conn->prepare('SELECT id FROM appointments WHERE professional_id = ? AND appointment_datetime >= ? AND appointment_datetime < ? AND status != ? LIMIT 1');
+        $stmt->execute([$data['professional_id'], $slotStart, $slotEnd, 'cancelled']);
+        if ($stmt->fetch()) {
+            sendError('Slot already booked', 409);
+        }
     } else {
         $professional = $db->professionals->findOne(['id' => $data['professional_id'], 'status' => 'approved']);
         if (!$professional) {
             sendError('Professional not found', 404);
+        }
+
+        $minutePrefix = date('Y-m-d H:i', $slotTs);
+        $existing = $db->appointments->findOne([
+            'professional_id' => $data['professional_id'],
+            'appointment_datetime' => ['$regex' => "^$minutePrefix"],
+            'status' => ['$ne' => 'cancelled']
+        ]);
+        if ($existing) {
+            sendError('Slot already booked', 409);
         }
     }
     
@@ -251,6 +282,39 @@ function completeAppointmentPayment($appointmentId, $queryParams) {
     $fast2sms->sendAppointmentConfirmation($appointment, $professional);
     $fast2sms->sendDoctorNotification($appointment, $professional);
     
-    sendResponse(['success' => true, 'meeting_link' => $meetingLink]);
+    sendResponse(['message' => 'Payment completed successfully', 'meeting_link' => $meetingLink]);
 }
-?>
+
+function checkSlotAvailability($queryParams) {
+    $professionalId = $queryParams['professional_id'] ?? '';
+    $date = $queryParams['date'] ?? '';
+    
+    if (empty($professionalId) || empty($date)) {
+        sendError('professional_id and date are required', 400);
+    }
+    
+    $db = Database::getInstance()->getDB();
+    
+    // Get all appointments for the professional on the given date
+    if ($db === 'mysql') {
+        $conn = Database::getInstance()->getConnection();
+        $stmt = $conn->prepare('SELECT appointment_datetime FROM appointments WHERE professional_id = ? AND DATE(appointment_datetime) = ? AND status != ?');
+        $stmt->execute([$professionalId, $date, 'cancelled']);
+        $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } else {
+        $appointments = iterator_to_array($db->appointments->find([
+            'professional_id' => $professionalId,
+            'appointment_datetime' => ['$regex' => "^$date"],
+            'status' => ['$ne' => 'cancelled']
+        ]));
+        $appointments = json_decode(json_encode($appointments), true);
+    }
+    
+    // Extract booked datetime strings
+    $bookedSlots = [];
+    foreach ($appointments as $appointment) {
+        $bookedSlots[] = $appointment['appointment_datetime'];
+    }
+    
+    sendResponse(['booked_slots' => $bookedSlots]);
+}

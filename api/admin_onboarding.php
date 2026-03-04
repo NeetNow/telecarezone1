@@ -269,6 +269,11 @@ function listAllProfessionals($queryParams) {
                 'sort' => ['created_at' => -1]
             ])
         );
+
+        $professionals = json_decode(json_encode($professionals), true);
+        foreach ($professionals as &$prof) {
+            unset($prof['_id']);
+        }
     }
     
     sendResponse([

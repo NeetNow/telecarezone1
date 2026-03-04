@@ -268,7 +268,7 @@ try {
             sendError('Endpoint not found: ' . $endpoint, 404);
     }
     
-} catch (Exception $e) {
+} catch (Throwable $e) {
     // ========================================================================
     // GLOBAL ERROR HANDLER
     // ========================================================================

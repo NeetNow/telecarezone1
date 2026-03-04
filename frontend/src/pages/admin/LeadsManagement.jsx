@@ -18,7 +18,7 @@ import {
   Filter
 } from 'lucide-react';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost/telecarezone11';
 
 export default function LeadsManagement() {
   const navigate = useNavigate();
@@ -36,6 +36,10 @@ export default function LeadsManagement() {
     setLoading(true);
     try {
       const token = localStorage.getItem('admin_token');
+      if (!token) {
+        navigate('/admin/login');
+        return;
+      }
       
       // Fetch all professionals (including pending ones as leads)
       const response = await axios.get(
@@ -52,7 +56,12 @@ export default function LeadsManagement() {
       
     } catch (error) {
       console.error('Failed to fetch leads:', error);
-      alert('Failed to load leads');
+      if (error?.response?.status === 401) {
+        localStorage.removeItem('admin_token');
+        navigate('/admin/login');
+      } else {
+        alert('Failed to load leads');
+      }
     } finally {
       setLoading(false);
     }
@@ -66,6 +75,10 @@ export default function LeadsManagement() {
 
     try {
       const token = localStorage.getItem('admin_token');
+      if (!token) {
+        navigate('/admin/login');
+        return;
+      }
       await axios.put(
         `${BACKEND_URL}/api/admin/onboarding/${leadId}`,
         { status: 'approved' },
@@ -80,7 +93,12 @@ export default function LeadsManagement() {
       alert('Lead approved successfully!');
       fetchLeads();
     } catch (error) {
-      alert('Failed to approve: ' + (error.response?.data?.error || error.message));
+      if (error?.response?.status === 401) {
+        localStorage.removeItem('admin_token');
+        navigate('/admin/login');
+      } else {
+        alert('Failed to approve: ' + (error.response?.data?.error || error.message));
+      }
     }
   };
 
@@ -92,6 +110,10 @@ export default function LeadsManagement() {
 
     try {
       const token = localStorage.getItem('admin_token');
+      if (!token) {
+        navigate('/admin/login');
+        return;
+      }
       await axios.put(
         `${BACKEND_URL}/api/admin/onboarding/${leadId}`,
         { status: 'rejected' },
@@ -106,7 +128,12 @@ export default function LeadsManagement() {
       alert('Lead rejected');
       fetchLeads();
     } catch (error) {
-      alert('Failed to reject: ' + (error.response?.data?.error || error.message));
+      if (error?.response?.status === 401) {
+        localStorage.removeItem('admin_token');
+        navigate('/admin/login');
+      } else {
+        alert('Failed to reject: ' + (error.response?.data?.error || error.message));
+      }
     }
   };
 

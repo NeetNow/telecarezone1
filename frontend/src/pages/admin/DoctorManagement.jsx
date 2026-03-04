@@ -15,7 +15,7 @@ import {
   Filter
 } from 'lucide-react';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost/telecarezone11';
 
 export default function DoctorManagement() {
   const navigate = useNavigate();
@@ -33,6 +33,10 @@ export default function DoctorManagement() {
     setLoading(true);
     try {
       const token = localStorage.getItem('admin_token');
+      if (!token) {
+        navigate('/admin/login');
+        return;
+      }
       const url = filterStatus === 'all' 
         ? `${BACKEND_URL}/api/admin/onboarding/list`
         : `${BACKEND_URL}/api/admin/onboarding/list?status=${filterStatus}`;
@@ -44,7 +48,12 @@ export default function DoctorManagement() {
       setDoctors(response.data.professionals || []);
     } catch (error) {
       console.error('Failed to fetch doctors:', error);
-      alert('Failed to load doctors');
+      if (error?.response?.status === 401) {
+        localStorage.removeItem('admin_token');
+        navigate('/admin/login');
+      } else {
+        alert('Failed to load doctors');
+      }
     } finally {
       setLoading(false);
     }
@@ -58,6 +67,10 @@ export default function DoctorManagement() {
 
     try {
       const token = localStorage.getItem('admin_token');
+      if (!token) {
+        navigate('/admin/login');
+        return;
+      }
       await axios.delete(
         `${BACKEND_URL}/api/admin/onboarding/${doctorId}`,
         {
@@ -68,7 +81,12 @@ export default function DoctorManagement() {
       alert('Doctor deleted successfully');
       fetchDoctors(); // Refresh list
     } catch (error) {
-      alert('Failed to delete doctor: ' + (error.response?.data?.error || error.message));
+      if (error?.response?.status === 401) {
+        localStorage.removeItem('admin_token');
+        navigate('/admin/login');
+      } else {
+        alert('Failed to delete doctor: ' + (error.response?.data?.error || error.message));
+      }
     }
   };
 

@@ -24,7 +24,7 @@ import {
   MessageCircle
 } from 'lucide-react';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost/telecarezone11';
 const API = `${BACKEND_URL}/api`;
 
 // Specialties data
