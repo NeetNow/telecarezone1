@@ -82,10 +82,19 @@ export default function MainLanding() {
   const fetchProfessionals = async () => {
     try {
       const response = await axios.get(`${API}/professionals/approved`);
-      if (Array.isArray(response.data)) {
-        setProfessionals(response.data);
+      const payload = response?.data;
+      const list = Array.isArray(payload)
+        ? payload
+        : Array.isArray(payload?.data)
+          ? payload.data
+          : Array.isArray(payload?.professionals)
+            ? payload.professionals
+            : null;
+
+      if (list) {
+        setProfessionals(list);
       } else {
-        console.error('Unexpected response format:', response.data);
+        console.error('Unexpected response format:', payload);
         setProfessionals([]);
       }
     } catch (error) {
