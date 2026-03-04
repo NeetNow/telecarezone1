@@ -13,7 +13,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost/telecarezone11';
 
 export default function Analytics() {
   const navigate = useNavigate();

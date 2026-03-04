@@ -20,16 +20,14 @@ function handleAdminRoutes($segments, $method, $data, $queryParams) {
             
         case 'analytics':
             JWTService::verifyToken();
-            if (isset($segments[2])) {
-                // GET /admin/analytics/{id}
-                getAnalyticsByProfessional($segments[2]);
+            $analyticsTarget = $segments[2] ?? '';
+
+            // GET /admin/analytics/overview
+            if ($analyticsTarget === '' || $analyticsTarget === 'overview') {
+                getPlatformAnalytics();
             } else {
-                // GET /admin/analytics/overview
-                if (isset($segments[3]) && $segments[3] === 'overview') {
-                    getPlatformAnalytics();
-                } else {
-                    getPlatformAnalytics();
-                }
+                // GET /admin/analytics/{id}
+                getAnalyticsByProfessional($analyticsTarget);
             }
             break;
             

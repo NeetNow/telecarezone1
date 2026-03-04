@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import { Calendar, Clock, ArrowRight, Loader2 } from 'lucide-react';
 import { format, addDays, addMinutes, setHours, setMinutes } from 'date-fns';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost/telecarezone11';
 const API = `${BACKEND_URL}/api`;
 
 export default function BookAppointment({ subdomain: propSubdomain }) {
@@ -22,6 +22,8 @@ export default function BookAppointment({ subdomain: propSubdomain }) {
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1); // 1: Select slot, 2: Personal info
   const [selectedSlot, setSelectedSlot] = useState(null);
+  const [selectedDayIndex, setSelectedDayIndex] = useState(0);
+  const [bookedSlots, setBookedSlots] = useState([]);
   const [formData, setFormData] = useState({
     patient_first_name: '',
     patient_last_name: '',
@@ -39,6 +41,12 @@ export default function BookAppointment({ subdomain: propSubdomain }) {
     }
   }, [subdomain]);
 
+  useEffect(() => {
+    if (professional && timeSlots.length > 0) {
+      fetchBookedSlots();
+    }
+  }, [professional, selectedDayIndex]);
+
   const fetchProfessional = async () => {
     try {
       const response = await axios.get(`${API}/public/professional/${subdomain}`);
@@ -49,6 +57,24 @@ export default function BookAppointment({ subdomain: propSubdomain }) {
     }
   };
 
+  const fetchBookedSlots = async () => {
+    try {
+      const selectedDay = timeSlots[selectedDayIndex];
+      if (!selectedDay) return;
+      
+      const response = await axios.get(`${API}/appointments/check-availability`, {
+        params: {
+          professional_id: professional.id,
+          date: selectedDay.date
+        }
+      });
+      setBookedSlots(response.data.booked_slots || []);
+    } catch (error) {
+      console.error('Error fetching booked slots:', error);
+      // Don't show error to user, just continue with empty booked slots
+    }
+  };
+
   const generateTimeSlots = () => {
     const slots = [];
     const today = new Date();
@@ -56,21 +82,40 @@ export default function BookAppointment({ subdomain: propSubdomain }) {
     // Generate slots for next 7 days
     for (let day = 0; day < 7; day++) {
       const date = addDays(today, day);
+      const daySlots = [];
       
-      // Generate time slots from 9 AM to 6 PM
+      // Generate time slots from 9 AM to 6 PM with 20-minute intervals
       for (let hour = 9; hour < 18; hour++) {
-        const slotTime = setMinutes(setHours(date, hour), 0);
-        slots.push({
-          datetime: slotTime.toISOString(),
-          display: format(slotTime, 'MMM dd, yyyy - hh:mm a')
-        });
+        for (let minute = 0; minute < 60; minute += 20) {
+          const slotStartTime = setMinutes(setHours(date, hour), minute);
+          const slotEndTime = addMinutes(slotStartTime, 20);
+          
+          daySlots.push({
+            datetime: format(slotStartTime, 'yyyy-MM-dd HH:mm:00'),
+            display: `${format(slotStartTime, 'hh:mm a')} to ${format(slotEndTime, 'hh:mm a')}`,
+            date: format(slotStartTime, 'MMM dd, yyyy'),
+            dayName: format(slotStartTime, 'EEEE')
+          });
+        }
       }
+      
+      slots.push({
+        date: format(date, 'MMM dd, yyyy'),
+        dayName: format(date, 'EEEE'),
+        isToday: day === 0,
+        slots: daySlots
+      });
     }
     
     return slots;
   };
 
   const handleSlotSelect = (slot) => {
+    // Check if slot is already booked
+    if (bookedSlots.includes(slot.datetime)) {
+      toast.error('This slot is already booked');
+      return;
+    }
     setSelectedSlot(slot);
   };
 
@@ -157,38 +202,158 @@ export default function BookAppointment({ subdomain: propSubdomain }) {
             {step === 1 && (
               <div className="space-y-6" data-testid="step-1-slot-selection">
                 <div>
-                  <h3 className="text-xl font-semibold mb-4 flex items-center">
-                    <Calendar className="w-5 h-5 mr-2" />
+                  <h3 className="text-2xl font-bold mb-6 text-gray-800 flex items-center">
+                    <Calendar className="w-6 h-6 mr-3 text-blue-600" />
                     Select Available Time Slot
                   </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-96 overflow-y-auto p-2">
-                    {timeSlots.map((slot, index) => (
+                  
+                  {/* Day Tabs */}
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    {timeSlots.map((dayGroup, dayIndex) => (
                       <button
-                        key={index}
-                        onClick={() => handleSlotSelect(slot)}
-                        className={`p-3 rounded-lg border-2 transition-all text-left ${
-                          selectedSlot?.datetime === slot.datetime
-                            ? 'border-blue-600 bg-blue-50'
-                            : 'border-gray-200 hover:border-blue-300'
+                        key={dayIndex}
+                        onClick={() => setSelectedDayIndex(dayIndex)}
+                        className={`px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
+                          selectedDayIndex === dayIndex
+                            ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg scale-105'
+                            : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-blue-300 hover:bg-blue-50'
                         }`}
-                        data-testid={`time-slot-${index}`}
                       >
-                        <div className="flex items-center space-x-2">
-                          <Clock className="w-4 h-4 text-gray-600" />
-                          <span className="text-sm font-medium">{slot.display}</span>
+                        <div className="text-center">
+                          <div className="text-xs font-medium uppercase tracking-wide">
+                            {dayGroup.dayName.substring(0, 3)}
+                          </div>
+                          <div className="text-lg font-bold">
+                            {format(new Date(dayGroup.date), 'dd')}
+                          </div>
+                          <div className="text-xs">
+                            {format(new Date(dayGroup.date), 'MMM')}
+                          </div>
+                          {dayGroup.isToday && (
+                            <div className="text-xs font-semibold mt-1">
+                              Today
+                            </div>
+                          )}
                         </div>
                       </button>
                     ))}
                   </div>
+
+                  {/* Selected Day's Slots */}
+                  <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+                    <div className={`px-6 py-4 ${
+                      timeSlots[selectedDayIndex]?.isToday 
+                        ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white' 
+                        : 'bg-gray-50 border-b border-gray-200'
+                    }`}>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="text-lg font-semibold">{timeSlots[selectedDayIndex]?.dayName}</h4>
+                          <p className={`text-sm ${
+                            timeSlots[selectedDayIndex]?.isToday ? 'text-blue-100' : 'text-gray-600'
+                          }`}>
+                            {timeSlots[selectedDayIndex]?.date} {timeSlots[selectedDayIndex]?.isToday && '(Today)'}
+                          </p>
+                        </div>
+                        <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          timeSlots[selectedDayIndex]?.isToday 
+                            ? 'bg-white/20 text-white' 
+                            : 'bg-blue-100 text-blue-700'
+                        }`}>
+                          {timeSlots[selectedDayIndex]?.slots.length} slots
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="p-6">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                        {timeSlots[selectedDayIndex]?.slots.map((slot, slotIndex) => {
+                          const isBooked = bookedSlots.includes(slot.datetime);
+                          return (
+                            <button
+                              key={slotIndex}
+                              onClick={() => handleSlotSelect({
+                                ...slot,
+                                fullDisplay: `${timeSlots[selectedDayIndex].date} - ${slot.display}`
+                              })}
+                              disabled={isBooked}
+                              className={`relative p-4 rounded-xl border-2 transition-all duration-200 text-center group ${
+                                isBooked
+                                  ? 'border-red-300 bg-red-50 cursor-not-allowed opacity-60'
+                                  : selectedSlot?.datetime === slot.datetime
+                                    ? 'border-blue-500 bg-blue-50 shadow-lg scale-105'
+                                    : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50/50 hover:scale-105 cursor-pointer'
+                              }`}
+                              data-testid={`time-slot-${selectedDayIndex}-${slotIndex}`}
+                            >
+                              <div className="flex flex-col items-center space-y-1">
+                                {isBooked ? (
+                                  <>
+                                    <div className="w-5 h-5 text-red-500">
+                                      <svg fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                                      </svg>
+                                    </div>
+                                    <span className="text-xs font-semibold text-red-600">
+                                      Booked
+                                    </span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Clock className={`w-5 h-5 ${
+                                      selectedSlot?.datetime === slot.datetime 
+                                        ? 'text-blue-600' 
+                                        : 'text-gray-400 group-hover:text-blue-500'
+                                    }`} />
+                                    <span className={`text-xs font-semibold ${
+                                      selectedSlot?.datetime === slot.datetime 
+                                        ? 'text-blue-700' 
+                                        : 'text-gray-700 group-hover:text-blue-600'
+                                    }`}>
+                                      {slot.display}
+                                    </span>
+                                  </>
+                                )}
+                              </div>
+                              {selectedSlot?.datetime === slot.datetime && !isBooked && (
+                                <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                                  <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                  </svg>
+                                </div>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex justify-end pt-4 border-t">
+                
+                {selectedSlot && (
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                          <Clock className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-600">Selected Time Slot</p>
+                          <p className="text-lg font-semibold text-gray-800">{selectedSlot.fullDisplay || selectedSlot.display}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                <div className="flex justify-end pt-6 border-t border-gray-200">
                   <Button
                     onClick={handleStepOne}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
                     data-testid="continue-to-info-btn"
                   >
                     Continue to Personal Info
-                    <ArrowRight className="w-4 h-4 ml-2" />
+                    <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
                 </div>
               </div>
@@ -196,19 +361,27 @@ export default function BookAppointment({ subdomain: propSubdomain }) {
 
             {step === 2 && (
               <form onSubmit={handleSubmit} className="space-y-6" data-testid="step-2-personal-info">
-                <div className="bg-blue-50 p-4 rounded-lg mb-6">
-                  <p className="text-sm font-semibold text-blue-900">
-                    Selected Slot: {selectedSlot?.display}
-                  </p>
-                  <Button
-                    type="button"
-                    variant="link"
-                    onClick={() => setStep(1)}
-                    className="text-blue-600 p-0 h-auto"
-                    data-testid="change-slot-btn"
-                  >
-                    Change Slot
-                  </Button>
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
+                        <Clock className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-600 mb-1">Selected Time Slot</p>
+                        <p className="text-xl font-bold text-gray-800">{selectedSlot?.fullDisplay || selectedSlot?.display}</p>
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setStep(1)}
+                      className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                      data-testid="change-slot-btn"
+                    >
+                      Change Slot
+                    </Button>
+                  </div>
                 </div>
 
                 <div className="space-y-4">

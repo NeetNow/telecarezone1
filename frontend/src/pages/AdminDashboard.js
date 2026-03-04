@@ -40,7 +40,7 @@ import DoctorManagement from '@/pages/admin/DoctorManagement';
 import Analytics from '@/pages/admin/Analytics';
 import LeadsManagement from '@/pages/admin/LeadsManagement';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost/telecarezone11';
 const API = `${BACKEND_URL}/api`;
 
 function DashboardHome() {
@@ -94,12 +94,20 @@ function DashboardHome() {
   const fetchAnalytics = async () => {
     try {
       const token = localStorage.getItem('admin_token');
+      if (!token) {
+        navigate('/admin/login');
+        return;
+      }
       const response = await axios.get(`${API}/admin/analytics/overview`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setAnalytics(response.data);
     } catch (error) {
       console.error('Error fetching analytics:', error);
+      if (error?.response?.status === 401) {
+        localStorage.removeItem('admin_token');
+        navigate('/admin/login');
+      }
     }
   };
 
@@ -399,6 +407,7 @@ function DashboardHome() {
 }
 
 function ProfessionalsManagement() {
+  const navigate = useNavigate();
   const [professionals, setProfessionals] = useState([]);
   const [filter, setFilter] = useState('all');
   const [editingPro, setEditingPro] = useState(null);
@@ -410,6 +419,11 @@ function ProfessionalsManagement() {
   const fetchProfessionals = async () => {
     try {
       const token = localStorage.getItem('admin_token');
+      if (!token) {
+        toast.error('Please login again');
+        navigate('/admin/login');
+        return;
+      }
       const url = filter === 'all' 
         ? `${API}/professionals` 
         : `${API}/professionals?status=${filter}`;
@@ -419,12 +433,24 @@ function ProfessionalsManagement() {
       setProfessionals(response.data);
     } catch (error) {
       console.error('Error fetching professionals:', error);
+      if (error?.response?.status === 401) {
+        localStorage.removeItem('admin_token');
+        toast.error('Session expired. Please login again.');
+        navigate('/admin/login');
+      } else {
+        toast.error('Failed to load professionals');
+      }
     }
   };
 
   const updateStatus = async (professionalId, newStatus) => {
     try {
       const token = localStorage.getItem('admin_token');
+      if (!token) {
+        toast.error('Please login again');
+        navigate('/admin/login');
+        return;
+      }
       await axios.put(
         `${API}/professionals/${professionalId}`,
         { status: newStatus },
@@ -434,7 +460,13 @@ function ProfessionalsManagement() {
       fetchProfessionals();
     } catch (error) {
       console.error('Error updating status:', error);
-      toast.error('Failed to update status');
+      if (error?.response?.status === 401) {
+        localStorage.removeItem('admin_token');
+        toast.error('Session expired. Please login again.');
+        navigate('/admin/login');
+      } else {
+        toast.error('Failed to update status');
+      }
     }
   };
 

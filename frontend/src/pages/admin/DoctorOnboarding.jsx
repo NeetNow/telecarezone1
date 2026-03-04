@@ -8,7 +8,7 @@ import axios from 'axios';
 import { ArrowLeft, Upload, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost/telecarezone11';
 
 // Theme color options (20 colors)
 const THEME_COLORS = [
