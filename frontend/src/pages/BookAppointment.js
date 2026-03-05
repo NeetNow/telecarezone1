@@ -11,7 +11,11 @@ import { toast } from 'sonner';
 import { Calendar, Clock, ArrowRight, Loader2 } from 'lucide-react';
 import { format, addDays, addMinutes, setHours, setMinutes } from 'date-fns';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost/telecarezone11';
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost/telecarezone1';
+  // typeof window !== 'undefined' &&
+  // (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  //   ? 'http://localhost/telecarezone1'
+  //   : (process.env.REACT_APP_BACKEND_URL || 'https://dev.telecarezone.com');
 const API = `${BACKEND_URL}/api`;
 
 export default function BookAppointment({ subdomain: propSubdomain }) {
@@ -136,8 +140,23 @@ export default function BookAppointment({ subdomain: propSubdomain }) {
     e.preventDefault();
     
     // Validate
-    if (!formData.patient_first_name || !formData.patient_last_name || !formData.patient_phone || !formData.patient_email) {
+    if (
+      !formData.patient_first_name ||
+      !formData.patient_last_name ||
+      !formData.patient_phone ||
+      !formData.patient_email ||
+      !formData.patient_gender ||
+      !formData.patient_age ||
+      !formData.referral_source ||
+      !formData.issue_detail
+    ) {
       toast.error('Please fill in all required fields');
+      return;
+    }
+
+    const parsedAge = parseInt(formData.patient_age, 10);
+    if (!Number.isFinite(parsedAge) || parsedAge <= 0) {
+      toast.error('Please enter a valid age');
       return;
     }
 
@@ -147,7 +166,7 @@ export default function BookAppointment({ subdomain: propSubdomain }) {
         professional_id: professional.id,
         appointment_datetime: selectedSlot.datetime,
         ...formData,
-        patient_age: parseInt(formData.patient_age)
+        patient_age: parsedAge
       };
       
       const response = await axios.post(`${API}/appointments`, appointmentData);

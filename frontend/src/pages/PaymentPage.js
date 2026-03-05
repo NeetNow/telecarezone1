@@ -6,7 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { CreditCard, Loader2, CheckCircle, Shield } from 'lucide-react';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost/telecarezone11';
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost/telecarezone1';
+  // typeof window !== 'undefined' &&
+  // (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  //   ? 'http://localhost/telecarezone1'
+  //   : (process.env.REACT_APP_BACKEND_URL || 'https://dev.telecarezone.com');
 const API = `${BACKEND_URL}/api`;
 
 export default function PaymentPage() {
@@ -85,6 +89,14 @@ export default function PaymentPage() {
     );
   }
 
+  const fees = Number.parseFloat(professional?.consulting_fees ?? '0') || 0;
+  const dtRaw = appointment?.appointment_datetime ?? '';
+  const dtIso = typeof dtRaw === 'string' ? dtRaw.replace(' ', 'T') : '';
+  const apptDate = dtIso ? new Date(dtIso) : null;
+  const apptDateText = apptDate && !Number.isNaN(apptDate.getTime())
+    ? apptDate.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
+    : '';
+
   return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #e0f7fa 0%, #b3e5fc 100%)' }}>
       <div className="w-full max-w-2xl px-4">
@@ -119,10 +131,7 @@ export default function PaymentPage() {
                 <div className="flex justify-between">
                   <span className="text-gray-600">Date & Time:</span>
                   <span className="font-semibold">
-                    {new Date(appointment.appointment_datetime).toLocaleString('en-IN', {
-                      dateStyle: 'medium',
-                      timeStyle: 'short'
-                    })}
+                    {apptDateText || '-'}
                   </span>
                 </div>
               </div>
@@ -134,20 +143,20 @@ export default function PaymentPage() {
               <div className="space-y-3">
                 <div className="flex justify-between text-lg">
                   <span className="text-gray-600">Consultation Fee:</span>
-                  <span className="font-semibold">₹{professional.consulting_fees}</span>
+                  <span className="font-semibold">₹{fees}</span>
                 </div>
                 <div className="flex justify-between text-sm text-gray-500">
                   <span>Platform Fee (10%):</span>
-                  <span>₹{(professional.consulting_fees * 0.10).toFixed(2)}</span>
+                  <span>₹{(fees * 0.10).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm text-gray-500">
                   <span>Doctor Receives (90%):</span>
-                  <span>₹{(professional.consulting_fees * 0.90).toFixed(2)}</span>
+                  <span>₹{(fees * 0.90).toFixed(2)}</span>
                 </div>
                 <div className="border-t border-gray-300 pt-3 mt-3">
                   <div className="flex justify-between text-2xl font-bold text-blue-600">
                     <span>Total Amount:</span>
-                    <span>₹{professional.consulting_fees}</span>
+                    <span>₹{fees}</span>
                   </div>
                 </div>
               </div>
@@ -179,7 +188,7 @@ export default function PaymentPage() {
               ) : (
                 <>
                   <CreditCard className="w-5 h-5 mr-2" />
-                  Pay ₹{professional.consulting_fees}
+                  Pay ₹{fees}
                 </>
               )}
             </Button>
