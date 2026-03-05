@@ -7,11 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Calendar, Instagram, Youtube, Twitter, Linkedin, Facebook, Star, Play, Clock, MapPin, Mail, Phone, Award, Users, Heart, AlertCircle } from 'lucide-react';
 import SocialMediaModal from '../components/SocialMediaModal';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost/telecarezone1';
-  // typeof window !== 'undefined' &&
-  // (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-  //   ? 'http://localhost/telecarezone1'
-  //   : (process.env.REACT_APP_BACKEND_URL || 'https://dev.telecarezone.com');
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://dev.telecarezone.com';
 const API = `${BACKEND_URL}/api`;
 
 export default function DoctorLanding({ subdomain: propSubdomain }) {
