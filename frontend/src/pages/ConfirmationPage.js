@@ -5,11 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle, Calendar, Video, Mail, MessageCircle } from 'lucide-react';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost/telecarezone1';
-  // typeof window !== 'undefined' &&
-  // (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-  //   ? 'http://localhost/telecarezone1'
-  //   : (process.env.REACT_APP_BACKEND_URL || 'https://dev.telecarezone.com');
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://dev.telecarezone.com';
 const API = `${BACKEND_URL}/api`;
 
 export default function ConfirmationPage() {
