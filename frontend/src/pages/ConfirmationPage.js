@@ -5,7 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle, Calendar, Video, Mail, MessageCircle } from 'lucide-react';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost/telecarezone11';
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost/telecarezone1';
+  // typeof window !== 'undefined' &&
+  // (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  //   ? 'http://localhost/telecarezone1'
+  //   : (process.env.REACT_APP_BACKEND_URL || 'https://dev.telecarezone.com');
 const API = `${BACKEND_URL}/api`;
 
 export default function ConfirmationPage() {
@@ -53,6 +57,13 @@ export default function ConfirmationPage() {
     );
   }
 
+  const dtRaw = appointment?.appointment_datetime ?? '';
+  const dtIso = typeof dtRaw === 'string' ? dtRaw.replace(' ', 'T') : '';
+  const apptDate = dtIso ? new Date(dtIso) : null;
+  const apptDateText = apptDate && !Number.isNaN(apptDate.getTime())
+    ? apptDate.toLocaleString('en-IN', { dateStyle: 'full', timeStyle: 'short' })
+    : '';
+
   return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #e0f7fa 0%, #b3e5fc 100%)' }}>
       <div className="w-full max-w-3xl px-4">
@@ -81,10 +92,7 @@ export default function ConfirmationPage() {
                   <div>
                     <p className="font-semibold text-gray-900">Date & Time</p>
                     <p className="text-gray-700">
-                      {new Date(appointment.appointment_datetime).toLocaleString('en-IN', {
-                        dateStyle: 'full',
-                        timeStyle: 'short'
-                      })}
+                      {apptDateText || '-'}
                     </p>
                   </div>
                 </div>
