@@ -4,9 +4,9 @@ import axios from 'axios';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle, Calendar, Video, Mail, MessageCircle } from 'lucide-react';
+import { getApiBaseUrl } from '@/lib/utils';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://dev.telecarezone.com';
-const API = `${BACKEND_URL}/api`;
+const API = getApiBaseUrl();
 
 export default function ConfirmationPage() {
   const { appointmentId } = useParams();
@@ -53,13 +53,6 @@ export default function ConfirmationPage() {
     );
   }
 
-  const dtRaw = appointment?.appointment_datetime ?? '';
-  const dtIso = typeof dtRaw === 'string' ? dtRaw.replace(' ', 'T') : '';
-  const apptDate = dtIso ? new Date(dtIso) : null;
-  const apptDateText = apptDate && !Number.isNaN(apptDate.getTime())
-    ? apptDate.toLocaleString('en-IN', { dateStyle: 'full', timeStyle: 'short' })
-    : '';
-
   return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #e0f7fa 0%, #b3e5fc 100%)' }}>
       <div className="w-full max-w-3xl px-4">
@@ -88,7 +81,10 @@ export default function ConfirmationPage() {
                   <div>
                     <p className="font-semibold text-gray-900">Date & Time</p>
                     <p className="text-gray-700">
-                      {apptDateText || '-'}
+                      {new Date(appointment.appointment_datetime).toLocaleString('en-IN', {
+                        dateStyle: 'full',
+                        timeStyle: 'short'
+                      })}
                     </p>
                   </div>
                 </div>

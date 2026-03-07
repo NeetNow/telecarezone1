@@ -99,12 +99,20 @@ class Database {
                 putenv(trim($key) . '=' . trim($value)); // Also set for getenv()
             }
         }
-
-        // // Set database credentials (with fallbacks)
+        
+<<<<<<< HEAD
+        // Set database credentials (with fallbacks)
         $this->mysql_host = $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?: 'localhost';
         $this->mysql_user = $_ENV['DB_USER'] ?? getenv('DB_USER') ?: 'root';
         $this->mysql_pass = $_ENV['DB_PASS'] ?? getenv('DB_PASS') ?: '';
         $this->mysql_db = $_ENV['DB_NAME'] ?? getenv('DB_NAME') ?: 'telecarezone_db';
+=======
+                // Set database credentials (with fallbacks)
+        $this->mysql_host = $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?: 'your_db_host';
+        $this->mysql_user = $_ENV['DB_USER'] ?? getenv('DB_USER') ?: 'your_db_user';
+        $this->mysql_pass = $_ENV['DB_PASS'] ?? getenv('DB_PASS') ?: 'your_db_password';
+        $this->mysql_db = $_ENV['DB_NAME'] ?? getenv('DB_NAME') ?: 'your_db_name';
+>>>>>>> d817e6ae58c7daac1551e467c2d4525bae4d8a03
     }
     
     private function connectMySQL() {

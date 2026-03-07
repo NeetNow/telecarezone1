@@ -23,9 +23,9 @@ import {
   Play,
   MessageCircle
 } from 'lucide-react';
+import { getApiBaseUrl } from '@/lib/utils';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://dev.telecarezone.com';
-const API = `${BACKEND_URL}/api`;
+const API = getApiBaseUrl();
 
 // Specialties data
 const specialties = [

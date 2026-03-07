@@ -8,7 +8,9 @@ import axios from 'axios';
 import { ArrowLeft, Upload, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost/telecarezone11';
+import { getApiBaseUrl } from '@/lib/utils';
+
+const API = getApiBaseUrl();
 
 // Theme color options (20 colors)
 const THEME_COLORS = [
@@ -103,7 +105,7 @@ export default function DoctorOnboarding() {
     try {
       const token = localStorage.getItem('admin_token');
       const response = await axios.post(
-        `${BACKEND_URL}/api/admin/onboarding/upload`,
+        `${API}/admin/onboarding/upload`,
         uploadData,
         {
           headers: {
@@ -146,7 +148,7 @@ export default function DoctorOnboarding() {
     try {
       const token = localStorage.getItem('admin_token');
       const response = await axios.post(
-        `${BACKEND_URL}/api/admin/onboarding/create`,
+        `${API}/admin/onboarding/create`,
         formData,
         {
           headers: {

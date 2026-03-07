@@ -13,7 +13,9 @@ import {
   RefreshCw
 } from 'lucide-react';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost/telecarezone11';
+import { getApiBaseUrl } from '@/lib/utils';
+
+const API = getApiBaseUrl();
 
 export default function Analytics() {
   const navigate = useNavigate();
@@ -41,7 +43,7 @@ export default function Analytics() {
       
       // Fetch professionals
       const profResponse = await axios.get(
-        `${BACKEND_URL}/api/admin/onboarding/list`,
+        `${API}/admin/onboarding/list`,
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
       

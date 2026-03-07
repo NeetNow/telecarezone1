@@ -18,7 +18,9 @@ import {
   Filter
 } from 'lucide-react';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost/telecarezone11';
+import { getApiBaseUrl } from '@/lib/utils';
+
+const API = getApiBaseUrl();
 
 export default function LeadsManagement() {
   const navigate = useNavigate();
@@ -43,7 +45,7 @@ export default function LeadsManagement() {
       
       // Fetch all professionals (including pending ones as leads)
       const response = await axios.get(
-        `${BACKEND_URL}/api/admin/onboarding/list`,
+        `${API}/admin/onboarding/list`,
         {
           headers: { 'Authorization': `Bearer ${token}` }
         }
@@ -80,7 +82,7 @@ export default function LeadsManagement() {
         return;
       }
       await axios.put(
-        `${BACKEND_URL}/api/admin/onboarding/${leadId}`,
+        `${API}/admin/onboarding/${leadId}`,
         { status: 'approved' },
         {
           headers: { 
@@ -115,7 +117,7 @@ export default function LeadsManagement() {
         return;
       }
       await axios.put(
-        `${BACKEND_URL}/api/admin/onboarding/${leadId}`,
+        `${API}/admin/onboarding/${leadId}`,
         { status: 'rejected' },
         {
           headers: { 

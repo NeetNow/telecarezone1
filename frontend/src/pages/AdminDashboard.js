@@ -39,9 +39,9 @@ import DoctorOnboarding from '@/pages/admin/DoctorOnboarding';
 import DoctorManagement from '@/pages/admin/DoctorManagement';
 import Analytics from '@/pages/admin/Analytics';
 import LeadsManagement from '@/pages/admin/LeadsManagement';
+import { getApiBaseUrl } from '@/lib/utils';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost/telecarezone11';
-const API = `${BACKEND_URL}/api`;
+const API = getApiBaseUrl();
 
 function DashboardHome() {
   const navigate = useNavigate();
