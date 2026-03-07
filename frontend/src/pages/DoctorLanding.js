@@ -6,9 +6,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Calendar, Instagram, Youtube, Twitter, Linkedin, Facebook, Star, Play, Clock, MapPin, Mail, Phone, Award, Users, Heart, AlertCircle } from 'lucide-react';
 import SocialMediaModal from '../components/SocialMediaModal';
+import { getApiBaseUrl } from '@/lib/utils';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://dev.telecarezone.com';
-const API = `${BACKEND_URL}/api`;
+const API = getApiBaseUrl();
 
 export default function DoctorLanding({ subdomain: propSubdomain }) {
   const navigate = useNavigate();

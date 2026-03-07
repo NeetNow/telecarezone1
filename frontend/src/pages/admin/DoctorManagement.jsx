@@ -15,7 +15,9 @@ import {
   Filter
 } from 'lucide-react';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost/telecarezone11';
+import { getApiBaseUrl } from '@/lib/utils';
+
+const API = getApiBaseUrl();
 
 export default function DoctorManagement() {
   const navigate = useNavigate();
@@ -38,8 +40,8 @@ export default function DoctorManagement() {
         return;
       }
       const url = filterStatus === 'all' 
-        ? `${BACKEND_URL}/api/admin/onboarding/list`
-        : `${BACKEND_URL}/api/admin/onboarding/list?status=${filterStatus}`;
+        ? `${API}/admin/onboarding/list`
+        : `${API}/admin/onboarding/list?status=${filterStatus}`;
         
       const response = await axios.get(url, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -72,7 +74,7 @@ export default function DoctorManagement() {
         return;
       }
       await axios.delete(
-        `${BACKEND_URL}/api/admin/onboarding/${doctorId}`,
+        `${API}/admin/onboarding/${doctorId}`,
         {
           headers: { 'Authorization': `Bearer ${token}` }
         }

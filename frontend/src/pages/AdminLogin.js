@@ -7,9 +7,9 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { ArrowLeft, Loader2, ShieldCheck } from 'lucide-react';
+import { getApiBaseUrl } from '@/lib/utils';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost/telecarezone11';
-const API = `${BACKEND_URL}/api`;
+const API = getApiBaseUrl();
 
 export default function AdminLogin() {
   const navigate = useNavigate();
