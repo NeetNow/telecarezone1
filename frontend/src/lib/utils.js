@@ -12,7 +12,7 @@ export function getBackendUrl() {
   if (typeof window !== 'undefined') {
     const host = window.location.hostname;
     if (host === 'localhost' || host === '127.0.0.1') {
-      return 'https://dev.telecarezone.com';
+      return 'http://localhost/telecarezone1';
     }
   }
 
