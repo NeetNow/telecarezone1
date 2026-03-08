@@ -9,6 +9,21 @@ import { getApiBaseUrl } from '@/lib/utils';
 
 const API = getApiBaseUrl();
 
+// Load Razorpay script
+const loadRazorpayScript = () => {
+  return new Promise((resolve) => {
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = () => {
+      resolve(true);
+    };
+    script.onerror = () => {
+      resolve(false);
+    };
+    document.body.appendChild(script);
+  });
+};
+
 export default function PaymentPage() {
   const { appointmentId } = useParams();
   const navigate = useNavigate();
@@ -42,27 +57,76 @@ export default function PaymentPage() {
     setProcessing(true);
     
     try {
-      // Create Razorpay order
+      // Load Razorpay script
+      const scriptLoaded = await loadRazorpayScript();
+      if (!scriptLoaded) {
+        throw new Error('Failed to load payment gateway');
+      }
+
+      // Create payment order
       const orderRes = await axios.post(`${API}/payments/create-order?appointment_id=${appointmentId}`);
       const { order_id, amount, currency, key_id } = orderRes.data;
-
-      // In production, this would integrate with actual Razorpay
-      // For now, simulate payment success
-      const mockPaymentId = `pay_${Date.now()}`;
       
-      // Complete payment
-      const completeRes = await axios.put(
-        `${API}/appointments/${appointmentId}/complete-payment?payment_id=${mockPaymentId}&razorpay_order_id=${order_id}`
-      );
+      console.log('Order created:', { order_id, amount, currency, key_id });
 
-      toast.success('Payment successful!');
-      setTimeout(() => {
-        navigate(`/confirmation/${appointmentId}`);
-      }, 1000);
+      // Configure Razorpay options
+      const options = {
+        key: key_id,
+        amount: amount,
+        currency: currency,
+        name: 'TeleCareZone',
+        description: `Consultation with Dr. ${professional?.first_name} ${professional?.last_name}`,
+        order_id: order_id,
+        handler: async function (response) {
+          console.log('Payment successful:', response);
+          
+          // Verify payment on backend
+          try {
+            const verifyRes = await axios.post(`${API}/payments/verify-payment`, {
+              order_id: response.razorpay_order_id,
+              payment_id: response.razorpay_payment_id,
+              signature: response.razorpay_signature,
+              appointment_id: appointmentId
+            });
+            
+            if (verifyRes.data.success) {
+              toast.success('Payment successful!');
+              setTimeout(() => {
+                navigate(`/confirmation/${appointmentId}`);
+              }, 1000);
+            } else {
+              throw new Error('Payment verification failed');
+            }
+          } catch (verifyError) {
+            console.error('Verification error:', verifyError);
+            toast.error('Payment verification failed. Please contact support.');
+          }
+        },
+        prefill: {
+          name: `${appointment?.patient_first_name} ${appointment?.patient_last_name}`,
+          email: appointment?.patient_email,
+          contact: appointment?.patient_phone
+        },
+        theme: {
+          color: '#10b981'
+        },
+        modal: {
+          ondismiss: function() {
+            console.log('Payment modal dismissed');
+            setProcessing(false);
+          }
+        }
+      };
+
+      // Open Razorpay checkout
+      const razorpay = new window.Razorpay(options);
+      razorpay.open();
+
     } catch (error) {
       console.error('Payment error:', error);
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
       toast.error('Payment failed. Please try again.');
-    } finally {
       setProcessing(false);
     }
   };
@@ -159,7 +223,7 @@ export default function PaymentPage() {
               <div>
                 <p className="text-sm font-semibold text-gray-900">Secure Payment</p>
                 <p className="text-sm text-gray-600">
-                  Your payment is processed securely through Razorpay. We never store your card details.
+                  Your payment is processed securely. We never store your card details.
                 </p>
               </div>
             </div>

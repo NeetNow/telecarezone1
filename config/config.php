@@ -41,10 +41,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 define('JWT_SECRET', getenv('JWT_SECRET') ?: 'your_jwt_secret_key');
 define('JWT_ALGORITHM', 'HS256');
 
-// Razorpay Configuration
-define('RAZORPAY_KEY_ID', getenv('RAZORPAY_KEY_ID') ?: 'your_razorpay_key_id');
-define('RAZORPAY_KEY_SECRET', getenv('RAZORPAY_KEY_SECRET') ?: 'your_razorpay_key_secret');
-
 // Fast2SMS Configuration  
 define('FAST2SMS_API_KEY', getenv('FAST2SMS_API_KEY') ?: 'your_fast2sms_api_key');
 define('FAST2SMS_SENDER_ID', getenv('FAST2SMS_SENDER_ID') ?: 'YOUR_SENDER_ID');
@@ -53,6 +49,10 @@ define('FAST2SMS_SENDER_ID', getenv('FAST2SMS_SENDER_ID') ?: 'YOUR_SENDER_ID');
 define('GOOGLE_CLIENT_ID', getenv('GOOGLE_CLIENT_ID') ?: 'your_google_client_id');
 define('GOOGLE_CLIENT_SECRET', getenv('GOOGLE_CLIENT_SECRET') ?: 'your_google_client_secret');
 define('GOOGLE_REDIRECT_URI', getenv('GOOGLE_REDIRECT_URI') ?: 'https://yourdomain.com/callback');
+
+// Razorpay Configuration
+define('RAZORPAY_KEY_ID', getenv('RAZORPAY_KEY_ID'));
+define('RAZORPAY_KEY_SECRET', getenv('RAZORPAY_KEY_SECRET'));
 
 // Application Settings
 define('APP_NAME', 'TeleCareZone');

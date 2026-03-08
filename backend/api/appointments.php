@@ -113,7 +113,7 @@ function createAppointment($data) {
         'id' => uniqid('appt_'),
         'professional_id' => $data['professional_id'],
         'patient_id' => $patientId,
-        'appointment_datetime' => $data['appointment_datetime'],
+        'appointment_datetime' => $slotStart,
         'patient_first_name' => $data['patient_first_name'],
         'patient_last_name' => $data['patient_last_name'],
         'patient_phone' => $data['patient_phone'],

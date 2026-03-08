@@ -25,8 +25,11 @@ function handleAppointmentsRoutes($segments, $method, $data, $queryParams) {
         JWTService::verifyToken();
         getProfessionalAppointments($segments[2]);
     } elseif (strpos($action, 'complete-payment') !== false || (isset($segments[2]) && $segments[2] === 'complete-payment')) {
-        // PUT /appointments/{id}/complete-payment
+        // GET/PUT /appointments/{id}/complete-payment
         $appointmentId = $segments[0] === 'appointments' ? $segments[1] : $action;
+        if ($method !== 'GET' && $method !== 'PUT') {
+            sendError('Method not allowed', 405);
+        }
         completeAppointmentPayment($appointmentId, $queryParams);
     } else {
         // GET /appointments/{id}
@@ -225,10 +228,28 @@ function getProfessionalAppointments($professionalId) {
 }
 
 function completeAppointmentPayment($appointmentId, $queryParams) {
-    $paymentId = $queryParams['payment_id'] ?? '';
-    $razorpayOrderId = $queryParams['razorpay_order_id'] ?? '';
+    // Log incoming request for debugging
+    error_log("Payment completion request - Appointment ID: " . $appointmentId);
+    error_log("Request method: " . $_SERVER['REQUEST_METHOD']);
+    error_log("Request data: " . file_get_contents('php://input'));
+    
+    // Handle both GET query params and PUT body data
+    if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+        $input = json_decode(file_get_contents('php://input'), true) ?: [];
+        error_log("PUT request body parsed: " . json_encode($input));
+        $paymentId = $input['payment_id'] ?? '';
+        $razorpayOrderId = $input['razorpay_order_id'] ?? $input['order_id'] ?? '';
+    } else {
+        error_log("GET query params: " . json_encode($queryParams));
+        $paymentId = $queryParams['payment_id'] ?? '';
+        $razorpayOrderId = $queryParams['razorpay_order_id'] ?? $queryParams['order_id'] ?? '';
+    }
+    
+    error_log("Extracted payment_id: " . $paymentId);
+    error_log("Extracted order_id: " . $razorpayOrderId);
     
     if (empty($paymentId) || empty($razorpayOrderId)) {
+        error_log("Missing required fields - payment_id: " . $paymentId . ", order_id: " . $razorpayOrderId);
         sendError('payment_id and razorpay_order_id are required', 400);
     }
     
