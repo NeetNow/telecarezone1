@@ -23,9 +23,9 @@ import {
   Play,
   MessageCircle
 } from 'lucide-react';
-import { getApiBaseUrl } from '@/lib/utils';
 
-const API = getApiBaseUrl();
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://dev.telecarezone.com';
+const API = `${BACKEND_URL}/api`;
 
 // Specialties data
 const specialties = [
@@ -136,10 +136,10 @@ export default function MainLanding() {
             </div>
 
             <div className="flex items-center space-x-3">
-              <Button 
+<Button 
                 variant="outline" 
                 className="hidden sm:flex border-teal-600 text-teal-600 hover:bg-teal-50"
-                onClick={() => navigate('/join-expert')}
+                onClick={() => navigate('/doctor-auth')}
                 data-testid="nav-join-expert-btn"
               >
                 Join as Doctor
@@ -190,11 +190,11 @@ export default function MainLanding() {
                   Start Consultation
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
-                <Button 
+<Button 
                   size="lg" 
                   variant="outline"
                   className="text-lg px-8 py-6 rounded-xl border-2"
-                  onClick={() => navigate('/join-expert')}
+                  onClick={() => navigate('/doctor-auth')}
                   data-testid="hero-join-btn"
                 >
                   <Play className="mr-2 w-5 h-5" />
@@ -508,11 +508,11 @@ export default function MainLanding() {
               Book Consultation
               <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
-            <Button 
+<Button 
               size="lg" 
               variant="outline"
               className="border-2 border-white text-white hover:bg-white/10 text-lg px-8 py-6 rounded-xl"
-              onClick={() => navigate('/join-expert')}
+              onClick={() => navigate('/doctor-auth')}
             >
               <MessageCircle className="mr-2 w-5 h-5" />
               Join as Doctor
