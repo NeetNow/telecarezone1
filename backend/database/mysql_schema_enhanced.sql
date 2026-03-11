@@ -6,7 +6,13 @@
 -- Compatible with: XAMPP, WAMP, Hostinger
 -- ============================================================================
 
+-- MIGRATION: Add password field to professionals table
+-- Run this SQL to add password field for doctor login
+ALTER TABLE professionals ADD COLUMN password VARCHAR(255) AFTER email;
+
+-- ============================================================================
 -- Create database
+-- ============================================================================
 CREATE DATABASE IF NOT EXISTS telecarezone_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE telecarezone_db;
 
@@ -304,3 +310,30 @@ INSERT INTO professionals (
 -- ============================================================================
 -- END OF SCHEMA
 -- ============================================================================
+
+
+
+<Button 
+                variant="outline" 
+                style={{ borderColor: themeColor, color: themeColor }}
+                onClick={() => navigate(subdomain ? `/doctor/${subdomain}` : '/')}
+              >
+                Back to Home
+              </Button>
+
+
+
+              <Button 
+                variant="outline" 
+                style={{ borderColor: themeColor, color: themeColor }}
+                onClick={() => navigate(subdomain ? `/doctor/${subdomain}` : '/')}
+              >
+                Back to Home
+              </Button>
+              <Button 
+                style={{ backgroundColor: themeColor }} 
+                className="text-white"
+                onClick={() => navigate(subdomain ? `/doctor/${subdomain}/dashboard` : '/dashboard')}
+              >
+                Dashboard
+              </Button>
