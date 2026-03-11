@@ -12,6 +12,9 @@ import JoinExpert from "@/pages/JoinExpert";
 import AdminDashboard from "@/pages/AdminDashboard";
 import AdminLogin from "@/pages/AdminLogin";
 import DoctorLanding from "@/pages/DoctorLanding";
+import DoctorLogin from "@/pages/DoctorLogin";
+import DoctorAuthPage from "@/pages/DoctorAuthPage";
+import DoctorDashboard from "@/pages/DoctorDashboard";
 import BookAppointment from "@/pages/BookAppointment";
 import PaymentPage from "@/pages/PaymentPage";
 import ConfirmationPage from "@/pages/ConfirmationPage";
@@ -20,6 +23,10 @@ import Blogs from "@/pages/Blogs";
 import Contact from "@/pages/Contact";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import Terms from "@/pages/Terms";
+
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost/telecarezone11';
+const API = `${BACKEND_URL}/api`;
 
 function AppContent() {
   const location = useLocation();
@@ -45,12 +52,13 @@ function AppContent() {
     }
   }, []);
 
-  // Show subdomain routes if subdomain detected
+// Show subdomain routes if subdomain detected
   if (subdomain) {
     return (
       <>
         <Routes>
           <Route path="/" element={<DoctorLanding subdomain={subdomain} />} />
+          <Route path="/dashboard" element={<DoctorDashboard subdomain={subdomain} />} />
           <Route path="/book" element={<BookAppointment subdomain={subdomain} />} />
           <Route path="/payment/:appointmentId" element={<PaymentPage />} />
           <Route path="/confirmation/:appointmentId" element={<ConfirmationPage />} />
@@ -66,8 +74,12 @@ function AppContent() {
       <Routes>
         <Route path="/" element={<MainLanding />} />
         <Route path="/doctor/:subdomain" element={<DoctorLanding />} />
+        <Route path="/doctor/:subdomain/dashboard" element={<DoctorDashboard />} />
         <Route path="/doctor/:subdomain/book" element={<BookAppointment />} />
+        <Route path="/dashboard" element={<DoctorDashboard />} />
         <Route path="/join-expert" element={<JoinExpert />} />
+        <Route path="/doctor-auth" element={<DoctorAuthPage />} />
+        <Route path="/doctor/login" element={<DoctorLogin />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/*" element={<AdminDashboard />} />
         <Route path="/payment/:appointmentId" element={<PaymentPage />} />

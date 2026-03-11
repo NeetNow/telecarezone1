@@ -6,9 +6,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Calendar, Instagram, Youtube, Twitter, Linkedin, Facebook, Star, Play, Clock, MapPin, Mail, Phone, Award, Users, Heart, AlertCircle } from 'lucide-react';
 import SocialMediaModal from '../components/SocialMediaModal';
-import { getApiBaseUrl } from '@/lib/utils';
 
-const API = getApiBaseUrl();
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://dev.telecarezone.com';
+const API = `${BACKEND_URL}/api`;
 
 export default function DoctorLanding({ subdomain: propSubdomain }) {
   const navigate = useNavigate();
@@ -112,14 +112,6 @@ export default function DoctorLanding({ subdomain: propSubdomain }) {
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <h1 className="text-2xl font-bold" style={{ color: themeColor }}>TeleCareZone</h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Button variant="outline" style={{ borderColor: themeColor, color: themeColor }}>
-                Back to Home
-              </Button>
-              <Button style={{ backgroundColor: themeColor }} className="text-white">
-                Login
-              </Button>
             </div>
           </div>
         </div>
