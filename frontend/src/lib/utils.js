@@ -6,13 +6,13 @@ export function cn(...inputs) {
 }
 
 export function getBackendUrl() {
-  const envUrl = process.env.REACT_APP_API_URL;
+  const envUrl = process.env.REACT_APP_BACKEND_URL || process.env.REACT_APP_API_URL;
   if (envUrl) return envUrl;
 
   if (typeof window !== 'undefined') {
     const host = window.location.hostname;
     if (host === 'localhost' || host === '127.0.0.1') {
-      return 'https://dev.telecarezone.com';
+      return 'http://localhost/telecarezone1';
     }
   }
 
