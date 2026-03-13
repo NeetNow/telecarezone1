@@ -25,7 +25,7 @@ import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import Terms from "@/pages/Terms";
 
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost/telecarezone11';
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost/telecarezone1';
 const API = `${BACKEND_URL}/api`;
 
 function AppContent() {

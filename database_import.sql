@@ -20,15 +20,31 @@ CREATE TABLE IF NOT EXISTS professionals (
     -- Basic Information
     first_name VARCHAR(255) NOT NULL,
     last_name VARCHAR(255) NOT NULL,
+    phone VARCHAR(20) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     country VARCHAR(100) DEFAULT 'India',
     state VARCHAR(100),
     display_name VARCHAR(255) NOT NULL,
     
     -- Professional Information
+    speciality VARCHAR(255),
+    ug_qualification VARCHAR(255),
+    pg_qualification VARCHAR(255),
+    superspeciality VARCHAR(255),
+    area_of_expertise TEXT,
     profession_qualification TEXT,
     bio TEXT,
     experience_years INT,
+
+
+    -- please add this defenitaion on database professionals table 
+    --     ALTER TABLE professionals
+    --     ADD phone VARCHAR(20) NOT NULL,
+    --     ADD speciality VARCHAR(255),
+    --     ADD ug_qualification VARCHAR(255),
+    --     ADD pg_qualification VARCHAR(255),
+    --     ADD superspeciality VARCHAR(255),
+    --     ADD area_of_expertise TEXT;
     
     -- Theme & Branding
     theme_color VARCHAR(7) DEFAULT '#667eea',
@@ -222,7 +238,7 @@ VALUES ('teleadmin', '$2b$12$Z/OQZ.WFWQwBPE1C0IOMYuzVyl5d.ORqps5tIJ/KB7ssrjkMiQC
 
 -- Expert 1: Dr. Rakesh Zha (MBBS MD)
 INSERT INTO professionals (
-    id, first_name, last_name, email, display_name, 
+    id, first_name, last_name, phone, email, display_name, 
     profession_qualification, bio, experience_years,
     consulting_fees, subdomain, status, theme_color,
     appointment_days, morning_time, evening_time,
@@ -231,6 +247,7 @@ INSERT INTO professionals (
     'rakesh-zha-001',
     'Rakesh',
     'Zha',
+    '9999999999',
     'rakesh.zha@telecarezone.com',
     'Dr. Rakesh Zha',
     'MBBS, MD (General Medicine)',
@@ -249,7 +266,7 @@ INSERT INTO professionals (
 
 -- Expert 2: Dr. Rubina Shah (BAMS MD)
 INSERT INTO professionals (
-    id, first_name, last_name, email, display_name,
+    id, first_name, last_name, phone, email, display_name,
     profession_qualification, bio, experience_years,
     consulting_fees, subdomain, status, theme_color,
     appointment_days, morning_time, evening_time,
@@ -258,6 +275,7 @@ INSERT INTO professionals (
     'rubina-shah-002',
     'Rubina',
     'Shah',
+    '9999999998',
     'rubina.shah@telecarezone.com',
     'Dr. Rubina Shah',
     'BAMS, MD (Rasashastra)',
@@ -276,7 +294,7 @@ INSERT INTO professionals (
 
 -- Expert 3: Sania Batra (Wellness Coach)
 INSERT INTO professionals (
-    id, first_name, last_name, email, display_name,
+    id, first_name, last_name, phone, email, display_name,
     profession_qualification, bio, experience_years,
     consulting_fees, subdomain, status, theme_color,
     appointment_days, morning_time, evening_time,
@@ -285,6 +303,7 @@ INSERT INTO professionals (
     'sania-batra-003',
     'Sania',
     'Batra',
+    '9999999997',
     'sania.batra@telecarezone.com',
     'Sania Batra',
     'Certified Wellness Coach',
