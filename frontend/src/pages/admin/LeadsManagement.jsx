@@ -378,7 +378,7 @@ export default function LeadsManagement() {
                     )}
                     
                     <Button
-                      onClick={() => navigate(`/admin/doctors/${lead.id}`)}
+                      onClick={() => navigate(`/admin/leads/${lead.id}`, { state: { lead } })}
                       variant="outline"
                       size="sm"
                     >

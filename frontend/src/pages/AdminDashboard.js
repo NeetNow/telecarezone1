@@ -39,6 +39,7 @@ import DoctorOnboarding from '@/pages/admin/DoctorOnboarding';
 import DoctorManagement from '@/pages/admin/DoctorManagement';
 import Analytics from '@/pages/admin/Analytics';
 import LeadsManagement from '@/pages/admin/LeadsManagement';
+import LeadDetails from '@/pages/admin/LeadDetails';
 import { getApiBaseUrl } from '@/lib/utils';
 
 const API = getApiBaseUrl();
@@ -806,6 +807,7 @@ export default function AdminDashboard() {
             <Route path="doctors" element={<DoctorManagement />} />
             <Route path="analytics" element={<Analytics />} />
             <Route path="leads" element={<LeadsManagement />} />
+            <Route path="leads/:leadId" element={<LeadDetails />} />
             
             <Route path="*" element={
               <div className="space-y-6" data-testid="admin-dashboard-root">
