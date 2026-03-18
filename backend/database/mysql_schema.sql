@@ -155,3 +155,29 @@ VALUES ('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi')
 
 -- Sample data migration from MongoDB (optional)
 -- This can be run after setting up to migrate existing data
+
+-- Leads Table for Healthcare Expert Form Submissions
+CREATE TABLE IF NOT EXISTS leads (
+    id VARCHAR(50) PRIMARY KEY,
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255) NOT NULL,
+    phone VARCHAR(20) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    speciality VARCHAR(255),
+    ug_qualification VARCHAR(255),
+    pg_qualification VARCHAR(255),
+    superspeciality VARCHAR(255),
+    
+    -- Additional fields for tracking
+    status ENUM('new', 'contacted', 'converted', 'closed') DEFAULT 'new',
+    source VARCHAR(100) DEFAULT 'healthcare_expert_form',
+    notes TEXT,
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    INDEX idx_phone (phone),
+    INDEX idx_email (email),
+    INDEX idx_status (status),
+    INDEX idx_created_at (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
