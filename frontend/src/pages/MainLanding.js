@@ -64,7 +64,7 @@ const testimonials = [
 
 // Stats data
 const stats = [
-  { value: '10L+', label: 'Consultations Done' },
+  { value: '10K+', label: 'Consultations Done' },
   { value: '500+', label: 'Verified Doctors' },
   { value: '4.8', label: 'Average Rating', icon: Star },
   { value: '24/7', label: 'Available' }
