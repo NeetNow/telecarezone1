@@ -4,8 +4,9 @@ import axios from 'axios';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Calendar, Instagram, Youtube, Twitter, Linkedin, Facebook, Star, Play, Clock, MapPin, Mail, Phone, Award, Users, Heart, AlertCircle, ChevronRight, CheckCircle, Activity, FileText, Video, MessageCircle } from 'lucide-react';
+import { Calendar, Instagram, Youtube, Twitter, Linkedin, Facebook, Star, Play, Clock, MapPin, Mail, Phone, Award, Users, Heart, AlertCircle, ChevronRight, CheckCircle, Activity, FileText, Video, MessageCircle, Menu, X } from 'lucide-react';
 import SocialMediaModal from '../components/SocialMediaModal';
+import { Footer } from '@/components/Layout';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://dev.telecarezone.com';
 const API = `${BACKEND_URL}/api`;
@@ -22,6 +23,7 @@ export default function DoctorLanding({ subdomain: propSubdomain }) {
   const [activeTab, setActiveTab] = useState('about');
   const [isScrolled, setIsScrolled] = useState(false);
   const [hoveredStat, setHoveredStat] = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     if (subdomain) {
@@ -36,6 +38,10 @@ export default function DoctorLanding({ subdomain: propSubdomain }) {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [activeTab]);
 
   const fetchProfessionalData = async () => {
     try {
@@ -128,11 +134,17 @@ export default function DoctorLanding({ subdomain: propSubdomain }) {
       {/* Navigation Bar */}
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur-md shadow-lg' : 'bg-transparent'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
+          <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <h1 className={`text-2xl font-bold transition-colors duration-300 ${isScrolled ? 'text-gray-900' : 'text-white'}`} style={{ fontFamily: 'Playfair Display, serif' }}>TeleCareZone</h1>
+              <h1
+                className={`text-2xl font-bold transition-colors duration-300 ${isScrolled ? 'text-gray-900' : 'text-white'}`}
+                style={{ fontFamily: 'Playfair Display, serif' }}
+              >
+                TeleCareZone
+              </h1>
             </div>
-            <div className="flex items-center space-x-6">
+
+            <div className="hidden md:flex items-center space-x-6">
               {['about', 'services', 'testimonials', 'contact'].map((tab) => (
                 <button
                   key={tab}
@@ -148,19 +160,67 @@ export default function DoctorLanding({ subdomain: propSubdomain }) {
                   {tab}
                 </button>
               ))}
-              <Button 
+              <Button
                 className="bg-white text-gray-900 hover:bg-gray-100 px-6 py-2 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300"
                 onClick={() => navigate(paramSubdomain ? `/doctor/${subdomain}/book` : '/book')}
               >
                 Book Now
               </Button>
             </div>
+
+            <button
+              type="button"
+              className={`md:hidden inline-flex items-center justify-center w-10 h-10 rounded-xl border transition-colors ${
+                isScrolled
+                  ? 'border-gray-200 text-gray-700 hover:bg-gray-50'
+                  : 'border-white/30 text-white hover:bg-white/10'
+              }`}
+              onClick={() => setMobileMenuOpen(v => !v)}
+              aria-label="Toggle menu"
+              aria-expanded={mobileMenuOpen}
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
         </div>
+
+        {mobileMenuOpen && (
+          <div className={`md:hidden border-t ${isScrolled ? 'border-gray-100 bg-white' : 'border-white/20 bg-black/20 backdrop-blur-md'}`}>
+            <div className="max-w-7xl mx-auto px-4 py-4 space-y-3">
+              {['about', 'services', 'testimonials', 'contact'].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => {
+                    setActiveTab(tab);
+                    const element = document.getElementById(tab);
+                    element?.scrollIntoView({ behavior: 'smooth' });
+                    setMobileMenuOpen(false);
+                  }}
+                  className={`block w-full text-left capitalize font-medium transition-colors ${
+                    isScrolled ? 'text-gray-700 hover:text-gray-900' : 'text-white/90 hover:text-white'
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+              <div className="pt-2">
+                <Button
+                  className="w-full bg-white text-gray-900 hover:bg-gray-100 rounded-xl shadow-lg"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    navigate(paramSubdomain ? `/doctor/${subdomain}/book` : '/book');
+                  }}
+                >
+                  Book Now
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center px-4 overflow-hidden" style={{ background: gradientColors.primary }}>
+      <section className="relative min-h-screen flex items-center px-4 pt-20 overflow-hidden" style={{ background: gradientColors.primary }}>
         {/* Animated Background Elements */}
         <div className="absolute inset-0">
           <div className="absolute top-20 left-10 w-72 h-72 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
@@ -177,10 +237,10 @@ export default function DoctorLanding({ subdomain: propSubdomain }) {
                   <Activity className="w-5 h-5 mr-2" />
                   <span className="text-sm font-semibold">Available for Consultation</span>
                 </div>
-                <h1 className="text-5xl lg:text-7xl font-bold mb-6 leading-tight" style={{ fontFamily: 'Playfair Display, serif' }}>
+                <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-6 leading-tight" style={{ fontFamily: 'Playfair Display, serif' }}>
                   Dr. {professional.first_name} {professional.last_name}
                 </h1>
-                <p className="text-2xl text-white/90 mb-8">{professional.speciality}</p>
+                <p className="text-xl sm:text-2xl text-white/90 mb-8">{professional.speciality}</p>
               </div>
               
               <div className="flex flex-wrap gap-3 mb-8 justify-center lg:justify-start">
@@ -229,9 +289,9 @@ export default function DoctorLanding({ subdomain: propSubdomain }) {
               </div>
               
               <div className="flex flex-col sm:flex-row items-center space-y-6 sm:space-y-0 sm:space-x-8 mb-10">
-                <div className="text-center bg-white/20 backdrop-blur-sm px-8 py-6 rounded-2xl border border-white/30">
-                  <p className="text-5xl font-bold mb-2">₹{professional.consulting_fees}</p>
-                  <p className="text-white/80">Consultation Fee</p>
+                <div className="text-center bg-white/20 backdrop-blur-sm px-6 py-4 sm:px-8 sm:py-6 rounded-2xl border border-white/30">
+                  <p className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-2">₹{professional.consulting_fees}</p>
+                  <p className="text-sm sm:text-base text-white/80">Consultation Fee</p>
                 </div>
                 <Button 
                   size="lg"
@@ -879,6 +939,8 @@ export default function DoctorLanding({ subdomain: propSubdomain }) {
         </div>
       </section>
       
+      <Footer />
+
       {/* Social Media Modal */}
       <SocialMediaModal 
         isOpen={socialModal.isOpen}
