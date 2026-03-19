@@ -48,6 +48,21 @@ function handleOnboardingRoutes($segments, $method, $data) {
     }
 }
 
+function getMysqlTableColumns($conn, $tableName) {
+    $stmt = $conn->prepare("DESCRIBE {$tableName}");
+    $stmt->execute();
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    return array_map(fn($r) => $r['Field'], $rows);
+}
+
+function filterToAllowedColumns($data, $allowedColumns) {
+    return array_filter(
+        $data,
+        fn($value, $key) => in_array($key, $allowedColumns, true),
+        ARRAY_FILTER_USE_BOTH
+    );
+}
+
 function getAllProfessionals($queryParams) {
     $db = Database::getInstance()->getDB();
     $status = $queryParams['status'] ?? null;
@@ -187,11 +202,21 @@ function createProfessional($data) {
     $db = Database::getInstance()->getDB();
     
     if ($db === 'mysql') {
-        $conn = Database::getInstance()->getConnection();
-        $fields = implode(', ', array_keys($professional));
-        $placeholders = implode(', ', array_fill(0, count($professional), '?'));
-        $stmt = $conn->prepare("INSERT INTO professionals ({$fields}) VALUES ({$placeholders})");
-        $stmt->execute(array_values($professional));
+        try {
+            $conn = Database::getInstance()->getConnection();
+            $allowedColumns = getMysqlTableColumns($conn, 'professionals');
+            $professional = filterToAllowedColumns($professional, $allowedColumns);
+            $fields = implode(', ', array_keys($professional));
+            $placeholders = implode(', ', array_fill(0, count($professional), '?'));
+            $stmt = $conn->prepare("INSERT INTO professionals ({$fields}) VALUES ({$placeholders})");
+            $stmt->execute(array_values($professional));
+        } catch (PDOException $e) {
+            // 23000 is integrity constraint violation (e.g. duplicate email)
+            if (($e->getCode() === '23000') && str_contains($e->getMessage(), 'Duplicate')) {
+                sendError('Professional already exists with this email/subdomain', 409);
+            }
+            throw $e;
+        }
     } else {
         $db->professionals->insertOne($professional);
     }
@@ -231,49 +256,67 @@ function updateProfessional($id, $data) {
 }
 
 function submitProfessionalApplication($data) {
-    $required = ['first_name', 'last_name', 'phone', 'email'];
-    foreach ($required as $field) {
-        if (!isset($data[$field])) {
-            sendError("Field {$field} is required", 400);
+    try {
+        $required = ['first_name', 'last_name', 'phone', 'email'];
+        foreach ($required as $field) {
+            if (!isset($data[$field]) || empty($data[$field])) {
+                sendError("Field {$field} is required", 400);
+            }
         }
+        
+        $subdomain = generateSubdomain($data['first_name'], $data['last_name']);
+        
+        $professional = [
+            'id' => uniqid('prof_'),
+            'first_name' => $data['first_name'],
+            'last_name' => $data['last_name'],
+            'phone' => $data['phone'],
+            'email' => $data['email'],
+            'speciality' => $data['speciality'] ?? null,
+            'ug_qualification' => $data['ug_qualification'] ?? null,
+            'pg_qualification' => $data['pg_qualification'] ?? null,
+            'superspeciality' => $data['superspeciality'] ?? null,
+            'area_of_expertise' => $data['area_of_expertise'] ?? null,
+            'instagram' => $data['instagram'] ?? null,
+            'youtube' => $data['youtube'] ?? null,
+            'twitter' => $data['twitter'] ?? null,
+            'linkedin' => $data['linkedin'] ?? null,
+            'facebook' => $data['facebook'] ?? null,
+            'consulting_fees' => floatval($data['consulting_fees'] ?? 0),
+            'subdomain' => $subdomain,
+            'status' => 'pending',
+            'created_at' => date('Y-m-d H:i:s')
+        ];
+        
+        $db = Database::getInstance()->getDB();
+        
+        if ($db === 'mysql') {
+            try {
+                $conn = Database::getInstance()->getConnection();
+                $allowedColumns = getMysqlTableColumns($conn, 'professionals');
+                $professional = filterToAllowedColumns($professional, $allowedColumns);
+                $fields = implode(', ', array_keys($professional));
+                $placeholders = implode(', ', array_fill(0, count($professional), '?'));
+                $stmt = $conn->prepare("INSERT INTO professionals ({$fields}) VALUES ({$placeholders})");
+                $stmt->execute(array_values($professional));
+            } catch (PDOException $e) {
+                // duplicate entry (email unique, etc.)
+                if (($e->getCode() === '23000') && str_contains($e->getMessage(), 'Duplicate')) {
+                    sendError('Application already submitted with this email', 409);
+                }
+                throw $e;
+            }
+        } else {
+            $db->professionals->insertOne($professional);
+        }
+        
+        unset($professional['_id']);
+        sendResponse($professional, 201);
+        
+    } catch (Exception $e) {
+        error_log("Submit Application Error: " . $e->getMessage());
+        sendError("Failed to submit application", 500);
     }
-    
-    $subdomain = generateSubdomain($data['first_name'], $data['last_name']);
-    
-    $professional = [
-        'id' => uniqid('prof_'),
-        'first_name' => $data['first_name'],
-        'last_name' => $data['last_name'],
-        'phone' => $data['phone'],
-        'email' => $data['email'],
-        'speciality' => $data['speciality'] ?? null,
-        'ug_qualification' => $data['ug_qualification'] ?? null,
-        'pg_qualification' => $data['pg_qualification'] ?? null,
-        'superspeciality' => $data['superspeciality'] ?? null,
-        'area_of_expertise' => $data['area_of_expertise'] ?? null,
-        'instagram' => $data['instagram'] ?? null,
-        'youtube' => $data['youtube'] ?? null,
-        'twitter' => $data['twitter'] ?? null,
-        'consulting_fees' => floatval($data['consulting_fees'] ?? 0),
-        'subdomain' => $subdomain,
-        'status' => 'pending',
-        'created_at' => date('Y-m-d H:i:s')
-    ];
-    
-    $db = Database::getInstance()->getDB();
-    
-    if ($db === 'mysql') {
-        $conn = Database::getInstance()->getConnection();
-        $fields = implode(', ', array_keys($professional));
-        $placeholders = implode(', ', array_fill(0, count($professional), '?'));
-        $stmt = $conn->prepare("INSERT INTO professionals ({$fields}) VALUES ({$placeholders})");
-        $stmt->execute(array_values($professional));
-    } else {
-        $db->professionals->insertOne($professional);
-    }
-    
-    unset($professional['_id']);
-    sendResponse($professional, 201);
 }
 
 function generateSubdomain($firstName, $lastName) {
