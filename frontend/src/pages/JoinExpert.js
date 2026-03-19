@@ -50,23 +50,22 @@ export default function JoinExpert() {
     setLoading(true);
     try {
       const submitData = {
-        first_name: formData.first_name,
-        last_name: formData.last_name,
-        phone: formData.phone,
-        email: formData.email,
-        speciality: formData.speciality,
-        ug_qualification: formData.ug_qualification,
-        pg_qualification: formData.pg_qualification,
-        superspeciality: formData.superspeciality
+        ...formData,
+        consulting_fees: parseFloat(formData.consulting_fees) || 0
       };
       
-      // Submit to leads table
-      await axios.post(`${API}/leads`, submitData);
+      await axios.post(`${API}/onboarding/submit`, submitData);
       toast.success('Application submitted successfully! We will review and get back to you.');
       setTimeout(() => navigate('/'), 2000);
     } catch (error) {
       console.error('Error submitting application:', error);
-      toast.error('Failed to submit application. Please try again.');
+      const status = error?.response?.status;
+      const backendMessage = error?.response?.data?.error || error?.response?.data?.message;
+      if (status === 409) {
+        toast.error(backendMessage || 'Application already submitted with this email.');
+      } else {
+        toast.error(backendMessage || 'Failed to submit application. Please try again.');
+      }
     } finally {
       setLoading(false);
     }

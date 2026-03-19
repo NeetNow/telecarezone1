@@ -43,19 +43,18 @@ export default function LeadsManagement() {
         return;
       }
       
-      // Fetch leads from leads table
+      // Fetch all professionals (including pending ones as leads)
       const response = await axios.get(
-        `${API}/leads?page=1&limit=50`,
+        `${API}/admin/onboarding/list`,
         {
           headers: { 'Authorization': `Bearer ${token}` }
         }
       );
       
-      if (response.data.success) {
-        setLeads(response.data.leads || []);
-      } else {
-        setLeads([]);
-      }
+      // For now, showing pending professionals as leads
+      // In production, you'd have a separate leads/applications table
+      const allProfessionals = response.data.professionals || [];
+      setLeads(allProfessionals);
       
     } catch (error) {
       console.error('Failed to fetch leads:', error);
@@ -82,14 +81,9 @@ export default function LeadsManagement() {
         navigate('/admin/login');
         return;
       }
-      
-      // Update lead status to converted
       await axios.put(
-        `${API}/leads/${leadId}`,
-        { 
-          status: 'converted',
-          notes: 'Approved and converted to professional'
-        },
+        `${API}/admin/onboarding/${leadId}`,
+        { status: 'approved' },
         {
           headers: { 
             'Authorization': `Bearer ${token}`,
@@ -105,7 +99,7 @@ export default function LeadsManagement() {
         localStorage.removeItem('admin_token');
         navigate('/admin/login');
       } else {
-        alert('Failed to approve: ' + (error.response?.data?.message || error.message));
+        alert('Failed to approve: ' + (error.response?.data?.error || error.message));
       }
     }
   };
@@ -122,14 +116,9 @@ export default function LeadsManagement() {
         navigate('/admin/login');
         return;
       }
-      
-      // Update lead status to closed
       await axios.put(
-        `${API}/leads/${leadId}`,
-        { 
-          status: 'closed',
-          notes: 'Application rejected by admin'
-        },
+        `${API}/admin/onboarding/${leadId}`,
+        { status: 'rejected' },
         {
           headers: { 
             'Authorization': `Bearer ${token}`,
@@ -138,14 +127,14 @@ export default function LeadsManagement() {
         }
       );
       
-      alert('Lead rejected successfully!');
+      alert('Lead rejected');
       fetchLeads();
     } catch (error) {
       if (error?.response?.status === 401) {
         localStorage.removeItem('admin_token');
         navigate('/admin/login');
       } else {
-        alert('Failed to reject: ' + (error.response?.data?.message || error.message));
+        alert('Failed to reject: ' + (error.response?.data?.error || error.message));
       }
     }
   };
@@ -161,8 +150,7 @@ export default function LeadsManagement() {
       lead.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       lead.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       lead.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      lead.speciality?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      lead.ug_qualification?.toLowerCase().includes(searchTerm.toLowerCase());
+      lead.profession_qualification?.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesStatus = 
       filterStatus === 'all' || lead.status === filterStatus;
@@ -173,10 +161,9 @@ export default function LeadsManagement() {
   // Calculate stats
   const stats = {
     total: leads.length,
-    new: leads.filter(l => l.status === 'new').length,
-    contacted: leads.filter(l => l.status === 'contacted').length,
-    converted: leads.filter(l => l.status === 'converted').length,
-    closed: leads.filter(l => l.status === 'closed').length
+    pending: leads.filter(l => l.status === 'pending').length,
+    approved: leads.filter(l => l.status === 'approved').length,
+    rejected: leads.filter(l => l.status === 'rejected').length
   };
 
   return (
@@ -208,8 +195,8 @@ export default function LeadsManagement() {
           <Card className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm text-blue-600 font-medium">New Leads</div>
-                <div className="text-2xl font-bold text-blue-900">{stats.new}</div>
+                <div className="text-sm text-blue-600 font-medium">Total Leads</div>
+                <div className="text-2xl font-bold text-blue-900">{stats.total}</div>
               </div>
               <User className="w-10 h-10 text-blue-400" />
             </div>
@@ -218,8 +205,8 @@ export default function LeadsManagement() {
           <Card className="p-4 bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm text-yellow-600 font-medium">Contacted</div>
-                <div className="text-2xl font-bold text-yellow-900">{stats.contacted}</div>
+                <div className="text-sm text-yellow-600 font-medium">Pending Review</div>
+                <div className="text-2xl font-bold text-yellow-900">{stats.pending}</div>
               </div>
               <Clock className="w-10 h-10 text-yellow-400" />
             </div>
@@ -228,8 +215,8 @@ export default function LeadsManagement() {
           <Card className="p-4 bg-gradient-to-br from-green-50 to-green-100 border-green-200">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm text-green-600 font-medium">Converted</div>
-                <div className="text-2xl font-bold text-green-900">{stats.converted}</div>
+                <div className="text-sm text-green-600 font-medium">Approved</div>
+                <div className="text-2xl font-bold text-green-900">{stats.approved}</div>
               </div>
               <CheckCircle className="w-10 h-10 text-green-400" />
             </div>
@@ -238,8 +225,8 @@ export default function LeadsManagement() {
           <Card className="p-4 bg-gradient-to-br from-red-50 to-red-100 border-red-200">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm text-red-600 font-medium">Closed</div>
-                <div className="text-2xl font-bold text-red-900">{stats.closed}</div>
+                <div className="text-sm text-red-600 font-medium">Rejected</div>
+                <div className="text-2xl font-bold text-red-900">{stats.rejected}</div>
               </div>
               <XCircle className="w-10 h-10 text-red-400" />
             </div>
@@ -270,10 +257,9 @@ export default function LeadsManagement() {
                 className="px-4 py-2 border border-gray-300 rounded-md"
               >
                 <option value="all">All Leads</option>
-                <option value="new">New</option>
-                <option value="contacted">Contacted</option>
-                <option value="converted">Converted</option>
-                <option value="closed">Closed</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
               </select>
             </div>
           </div>
@@ -306,25 +292,31 @@ export default function LeadsManagement() {
                 <div className="flex items-start justify-between">
                   {/* Lead Info */}
                   <div className="flex items-start gap-4 flex-1">
-                    {/* Profile Initials */}
+                    {/* Profile Photo */}
                     <div className="flex-shrink-0">
-                      <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold text-xl">
-                        {lead.first_name?.charAt(0)}{lead.last_name?.charAt(0)}
-                      </div>
+                      {lead.profile_photo ? (
+                        <img
+                          src={lead.profile_photo}
+                          alt={lead.display_name}
+                          className="w-16 h-16 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold text-xl">
+                          {lead.first_name?.charAt(0)}{lead.last_name?.charAt(0)}
+                        </div>
+                      )}
                     </div>
 
                     {/* Details */}
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
                         <h3 className="text-lg font-semibold text-gray-900">
-                          {lead.first_name} {lead.last_name}
+                          {lead.display_name || `${lead.first_name} ${lead.last_name}`}
                         </h3>
                         <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                          lead.status === 'converted' 
+                          lead.status === 'approved' 
                             ? 'bg-green-100 text-green-800'
-                            : lead.status === 'new'
-                            ? 'bg-blue-100 text-blue-800'
-                            : lead.status === 'contacted'
+                            : lead.status === 'pending'
                             ? 'bg-yellow-100 text-yellow-800'
                             : 'bg-red-100 text-red-800'
                         }`}>
@@ -339,45 +331,35 @@ export default function LeadsManagement() {
                         </div>
                         
                         <div className="flex items-center gap-2">
-                          <Phone className="w-4 h-4" />
-                          <span>{lead.phone}</span>
-                        </div>
-                        
-                        <div className="flex items-center gap-2">
                           <Briefcase className="w-4 h-4" />
-                          <span>{lead.speciality || 'Not specified'}</span>
+                          <span>{lead.profession_qualification || 'Not specified'}</span>
                         </div>
-                        
+
                         <div className="flex items-center gap-2">
                           <User className="w-4 h-4" />
-                          <span>{lead.ug_qualification || 'Not specified'}</span>
+                          <span>{lead.country}, {lead.state}</span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4" />
+                          <span>Applied: {new Date(lead.created_at).toLocaleDateString()}</span>
                         </div>
                       </div>
-                      
-                      {lead.pg_qualification && (
-                        <div className="mt-2 text-sm text-gray-600">
-                          <span className="font-medium">PG:</span> {lead.pg_qualification}
-                        </div>
+
+                      {lead.bio && (
+                        <p className="mt-3 text-sm text-gray-700 line-clamp-2">
+                          {lead.bio}
+                        </p>
                       )}
-                      
-                      {lead.superspeciality && (
-                        <div className="mt-1 text-sm text-gray-600">
-                          <span className="font-medium">Super Speciality:</span> {lead.superspeciality}
-                        </div>
-                      )}
-                      
-                      <div className="mt-3 text-xs text-gray-500">
-                        Applied on: {new Date(lead.created_at).toLocaleDateString()}
-                      </div>
                     </div>
                   </div>
 
                   {/* Action Buttons */}
                   <div className="flex flex-col gap-2 ml-4">
-                    {lead.status === 'new' && (
+                    {lead.status === 'pending' && (
                       <>
                         <Button
-                          onClick={() => handleApprove(lead.id, `${lead.first_name} ${lead.last_name}`)}
+                          onClick={() => handleApprove(lead.id, lead.display_name)}
                           className="bg-green-600 hover:bg-green-700 flex items-center gap-2"
                           size="sm"
                         >
@@ -385,7 +367,7 @@ export default function LeadsManagement() {
                           Approve
                         </Button>
                         <Button
-                          onClick={() => handleReject(lead.id, `${lead.first_name} ${lead.last_name}`)}
+                          onClick={() => handleReject(lead.id, lead.display_name)}
                           className="bg-red-600 hover:bg-red-700 flex items-center gap-2"
                           size="sm"
                         >

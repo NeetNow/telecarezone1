@@ -45,7 +45,6 @@ try {
     require_once __DIR__ . '/../api/payments.php';
     require_once __DIR__ . '/../api/testimonials.php';
     require_once __DIR__ . '/../api/analytics.php';
-    require_once __DIR__ . '/../api/leads.php';
     
     // Route requests
     $endpoint = $segments[0] ?? '';
@@ -89,11 +88,6 @@ try {
         // Testimonials
         case 'testimonials':
             handleTestimonialsRoutes($segments, $method, $data);
-            break;
-            
-        // Leads
-        case 'leads':
-            handleLeadsRoutes($segments, $method, $data, $queryParams);
             break;
             
         // 404
