@@ -22,7 +22,9 @@ import {
   Bone,
   ArrowRight,
   Play,
-  MessageCircle
+  MessageCircle,
+  Leaf,
+  Home
 } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://dev.telecarezone.com';
@@ -36,6 +38,8 @@ const specialties = [
   { name: 'Gynecologist', icon: Baby, color: 'bg-rose-100 text-rose-600' },
   { name: 'Orthopedist', icon: Bone, color: 'bg-amber-100 text-amber-600' },
   { name: 'Ophthalmologist', icon: Eye, color: 'bg-cyan-100 text-cyan-600' },
+  { name: 'Ayurveda', icon: Leaf, color: 'bg-green-100 text-green-600' },
+  { name: 'Homeopathy', icon: Home, color: 'bg-orange-100 text-orange-600' },
 ];
 
 // Testimonials data
@@ -75,6 +79,7 @@ export default function MainLanding() {
   const navigate = useNavigate();
   const [professionals, setProfessionals] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentSpecialtyIndex, setCurrentSpecialtyIndex] = useState(0);
 
   useEffect(() => {
     fetchProfessionals();
@@ -109,6 +114,20 @@ export default function MainLanding() {
     return `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`;
   };
 
+  const handleNextSpecialties = () => {
+    setCurrentSpecialtyIndex((prev) => 
+      prev + 4 >= specialties.length ? 0 : prev + 4
+    );
+  };
+
+  const handlePrevSpecialties = () => {
+    setCurrentSpecialtyIndex((prev) => 
+      prev - 4 < 0 ? Math.max(0, specialties.length - 4) : prev - 4
+    );
+  };
+
+  const visibleSpecialties = specialties.slice(currentSpecialtyIndex, currentSpecialtyIndex + 4);
+
   return (
     <div className="min-h-screen bg-white">
       <Header />
@@ -116,87 +135,95 @@ export default function MainLanding() {
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-teal-50 via-white to-cyan-50">
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-teal-100 rounded-full opacity-50 blur-3xl" />
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-cyan-100 rounded-full opacity-50 blur-3xl" />
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-teal-100 rounded-full opacity-50 blur-3xl animate-pulse" />
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-cyan-100 rounded-full opacity-50 blur-3xl animate-pulse delay-1000" />
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-teal-50 to-cyan-50 rounded-full opacity-30 blur-3xl animate-pulse delay-500" />
         </div>
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <div className="inline-flex items-center px-4 py-2 bg-teal-100 text-teal-700 rounded-full text-sm font-medium mb-6">
-                <CheckCircle className="w-4 h-4 mr-2" />
+            <div className="text-center lg:text-left">
+              <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-teal-100 to-cyan-100 text-teal-700 rounded-full text-sm font-semibold mb-8 shadow-lg border border-teal-200 transform hover:scale-105 transition-all duration-300">
+                <CheckCircle className="w-5 h-5 mr-3 animate-pulse" />
                 Trusted by 10 Lakh+ Patients
               </div>
               
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6">
-                Consult Top Doctors
-                <span className="block text-teal-600">Online, Anytime</span>
+              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-gray-900 leading-tight mb-8 animate-fade-in-up">
+                <span className="block mb-2">Consult Top Doctors</span>
+                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-cyan-600">Online, Anytime</span>
               </h1>
               
-              <p className="text-lg text-gray-600 mb-8 max-w-lg">
+              <p className="text-xl text-gray-600 mb-10 max-w-2xl leading-relaxed animate-fade-in-up delay-200">
                 Skip the wait. Connect with India's best healthcare professionals via secure video consultation from the comfort of your home.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4 mb-8">
+              <div className="flex flex-col sm:flex-row gap-6 mb-12 animate-fade-in-up delay-300">
                 <Button 
                   size="lg" 
-                  className="bg-teal-600 hover:bg-teal-700 text-white text-lg px-8 py-6 rounded-xl shadow-lg shadow-teal-200 hover:shadow-xl transition-all"
+                  className="bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white text-lg px-10 py-6 rounded-xl shadow-xl shadow-teal-200 hover:shadow-2xl transform hover:scale-105 transition-all duration-300 border-2 border-teal-600"
                   onClick={() => document.getElementById('experts-section')?.scrollIntoView({ behavior: 'smooth' })}
                   data-testid="hero-consult-btn"
                 >
                   Start Consultation
-                  <ArrowRight className="ml-2 w-5 h-5" />
+                  <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-1 transition-transform duration-300" />
                 </Button>
-<Button 
+                <Button 
                   size="lg" 
                   variant="outline"
-                  className="text-lg px-8 py-6 rounded-xl border-2"
+                  className="text-lg px-10 py-6 rounded-xl border-2 border-gray-300 hover:border-teal-600 hover:bg-teal-50 hover:text-teal-700 transition-all duration-300 hover:scale-105 shadow-md hover:shadow-lg"
                   onClick={() => navigate('/doctor-auth')}
                   data-testid="hero-join-btn"
                 >
-                  <Play className="mr-2 w-5 h-5" />
+                  <Play className="mr-3 w-6 h-6" />
                   Join as Doctor - FREE
                 </Button>
               </div>
 
               {/* Trust Indicators */}
-              <div className="flex items-center gap-6 text-sm text-gray-500">
-                <div className="flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-green-600" />
-                  <span>100% Secure</span>
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-8 text-sm text-gray-500 animate-fade-in-up delay-400">
+                <div className="flex items-center gap-2 group">
+                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center group-hover:bg-green-200 transition-colors duration-300">
+                    <Shield className="w-6 h-6 text-green-600" />
+                  </div>
+                  <span className="font-medium text-gray-700">100% Secure</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-blue-600" />
-                  <span>Quick Response</span>
+                <div className="flex items-center gap-2 group">
+                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center group-hover:bg-blue-200 transition-colors duration-300">
+                    <Clock className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <span className="font-medium text-gray-700">Quick Response</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Star className="w-5 h-5 text-yellow-500" />
-                  <span>4.8 Rating</span>
+                <div className="flex items-center gap-2 group">
+                  <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center group-hover:bg-yellow-200 transition-colors duration-300">
+                    <Star className="w-6 h-6 text-yellow-500 fill-yellow-500" />
+                  </div>
+                  <span className="font-medium text-gray-700">4.8 Rating</span>
                 </div>
               </div>
             </div>
 
             {/* Hero Image / Illustration */}
             <div className="hidden lg:block relative">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-teal-400 to-cyan-500 rounded-3xl transform rotate-3 opacity-20" />
-                <div className="relative bg-white rounded-3xl shadow-2xl p-8">
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-br from-teal-400 to-cyan-500 rounded-3xl transform rotate-3 opacity-20 group-hover:rotate-6 transition-transform duration-500" />
+                <div className="relative bg-white rounded-3xl shadow-2xl p-8 transform group-hover:scale-105 transition-all duration-500">
                   <div className="flex items-center gap-4 mb-6">
-                    <div className="w-16 h-16 bg-teal-100 rounded-2xl flex items-center justify-center">
-                      <Video className="w-8 h-8 text-teal-600" />
+                    <div className="w-16 h-16 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-2xl flex items-center justify-center transform group-hover:rotate-12 transition-transform duration-300">
+                      <Video className="w-8 h-8 text-white" />
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">Video Consultation</p>
+                      <p className="text-sm text-gray-500 font-medium">Video Consultation</p>
                       <p className="text-xl font-bold text-gray-900">In Progress...</p>
                     </div>
                   </div>
-                  <div className="aspect-video bg-gradient-to-br from-teal-500 to-cyan-600 rounded-2xl flex items-center justify-center">
-                    <div className="text-center text-white">
-                      <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
-                        <Play className="w-10 h-10 text-white ml-1" />
+                  <div className="aspect-video bg-gradient-to-br from-teal-500 to-cyan-600 rounded-2xl flex items-center justify-center relative overflow-hidden">
+                    <div className="absolute inset-0 bg-white/10 animate-pulse"></div>
+                    <div className="text-center text-white relative z-10">
+                      <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm transform group-hover:scale-110 transition-transform duration-300">
+                        <Play className="w-12 h-12 text-white ml-1 group-hover:rotate-12 transition-transform duration-300" />
                       </div>
-                      <p className="text-lg font-medium">HD Video Calls</p>
-                      <p className="text-sm opacity-80">Secure & Private</p>
+                      <p className="text-xl font-bold mb-2">HD Video Calls</p>
+                      <p className="text-sm opacity-90">Secure & Private</p>
                     </div>
                   </div>
                 </div>
@@ -235,21 +262,58 @@ export default function MainLanding() {
             </p>
           </div>
           
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            {specialties.map((specialty, index) => (
-              <Card 
-                key={index} 
-                className="cursor-pointer hover:shadow-lg transition-all hover:-translate-y-1 border-0 bg-white"
-                onClick={() => document.getElementById('experts-section')?.scrollIntoView({ behavior: 'smooth' })}
+          <div className="relative">
+            <div className="flex items-center justify-center">
+              <button
+                onClick={handlePrevSpecialties}
+                className="absolute left-0 z-10 bg-white rounded-full p-2 shadow-lg hover:shadow-xl transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={specialties.length <= 4}
               >
-                <CardContent className="p-6 text-center">
-                  <div className={`w-14 h-14 ${specialty.color} rounded-2xl flex items-center justify-center mx-auto mb-3`}>
-                    <specialty.icon className="w-7 h-7" />
-                  </div>
-                  <p className="font-medium text-gray-900 text-sm">{specialty.name}</p>
-                </CardContent>
-              </Card>
-            ))}
+                <ArrowRight className="w-5 h-5 text-gray-600 rotate-180" />
+              </button>
+              
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mx-12">
+                {visibleSpecialties.map((specialty, index) => (
+                  <Card 
+                    key={`${currentSpecialtyIndex}-${index}`} 
+                    className="cursor-pointer hover:shadow-lg transition-all hover:-translate-y-1 border-0 bg-white"
+                    onClick={() => document.getElementById('experts-section')?.scrollIntoView({ behavior: 'smooth' })}
+                  >
+                    <CardContent className="p-6 text-center">
+                      <div className={`w-14 h-14 ${specialty.color} rounded-2xl flex items-center justify-center mx-auto mb-3`}>
+                        <specialty.icon className="w-7 h-7" />
+                      </div>
+                      <p className="font-medium text-gray-900 text-sm">{specialty.name}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+              
+              <button
+                onClick={handleNextSpecialties}
+                className="absolute right-0 z-10 bg-white rounded-full p-2 shadow-lg hover:shadow-xl transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={specialties.length <= 4}
+              >
+                <ArrowRight className="w-5 h-5 text-gray-600" />
+              </button>
+            </div>
+            
+            {/* Pagination dots */}
+            {specialties.length > 4 && (
+              <div className="flex justify-center mt-6 gap-2">
+                {Array.from({ length: Math.ceil(specialties.length / 4) }).map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentSpecialtyIndex(index * 4)}
+                    className={`w-2 h-2 rounded-full transition-colors ${
+                      currentSpecialtyIndex === index * 4 
+                        ? 'bg-teal-600' 
+                        : 'bg-gray-300 hover:bg-gray-400'
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>
