@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Stethoscope, Menu, X, Shield, CheckCircle, Phone, MessageCircle } from 'lucide-react';
@@ -6,42 +6,71 @@ import { Stethoscope, Menu, X, Shield, CheckCircle, Phone, MessageCircle } from 
 export const Header = () => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  // Add scroll effect for header
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
-    <nav className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
+    <nav className={`sticky top-0 z-50 transition-all duration-300 ${
+      isScrolled 
+        ? 'bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-lg' 
+        : 'bg-white border-b border-gray-100 shadow-sm'
+    }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <Link to="/" className="flex items-center space-x-2" onClick={() => setMobileMenuOpen(false)}>
-            <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-xl flex items-center justify-center">
-              <Stethoscope className="w-6 h-6 text-white" />
+          <Link to="/" className="flex items-center space-x-3 group" onClick={() => setMobileMenuOpen(false)}>
+            <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-xl flex items-center justify-center transform group-hover:scale-110 transition-all duration-300 shadow-lg group-hover:shadow-teal-200">
+              <Stethoscope className="w-6 h-6 text-white transform group-hover:rotate-12 transition-transform duration-300" />
             </div>
-            <span className="text-xl font-bold text-gray-900">
-              TeleCare<span className="text-teal-600">Zone</span>
-            </span>
+            <div className="text-left">
+              <span className="text-xl font-bold text-gray-900 block leading-tight">
+                TeleCare<span className="text-teal-600">Zone</span>
+              </span>
+              <span className="text-xs text-gray-500 hidden sm:block">Your Health, Our Priority</span>
+            </div>
           </Link>
 
           <div className="hidden md:flex items-center space-x-8">
-            <Link to="/blogs" className="text-gray-600 hover:text-teal-600 font-medium transition-colors">
+            <Link 
+              to="/blogs" 
+              className="text-gray-600 hover:text-teal-600 font-medium transition-all duration-300 hover:scale-105 relative group"
+            >
               Health Blog
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-teal-600 transition-all duration-300 group-hover:w-full"></span>
             </Link>
-            <Link to="/about" className="text-gray-600 hover:text-teal-600 font-medium transition-colors">
+            <Link 
+              to="/about" 
+              className="text-gray-600 hover:text-teal-600 font-medium transition-all duration-300 hover:scale-105 relative group"
+            >
               About Us
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-teal-600 transition-all duration-300 group-hover:w-full"></span>
             </Link>
-            <Link to="/contact" className="text-gray-600 hover:text-teal-600 font-medium transition-colors">
+            <Link 
+              to="/contact" 
+              className="text-gray-600 hover:text-teal-600 font-medium transition-all duration-300 hover:scale-105 relative group"
+            >
               Contact
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-teal-600 transition-all duration-300 group-hover:w-full"></span>
             </Link>
           </div>
 
           <div className="hidden md:flex items-center space-x-3">
             <Button
               variant="outline"
-              className="border-teal-600 text-teal-600 hover:bg-teal-50"
+              className="border-teal-600 text-teal-600 hover:bg-teal-50 hover:border-teal-700 hover:text-teal-700 transition-all duration-300 hover:scale-105 hover:shadow-md"
               onClick={() => navigate('/doctor-auth')}
             >
               Join as Doctor
             </Button>
             <Button
-              className="bg-teal-600 hover:bg-teal-700 text-white"
+              className="bg-teal-600 hover:bg-teal-700 text-white transition-all duration-300 hover:scale-105 hover:shadow-lg shadow-teal-200"
               onClick={() => navigate('/')}
             >
               Consult Now
@@ -50,7 +79,11 @@ export const Header = () => {
 
           <button
             type="button"
-            className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50"
+            className={`md:hidden inline-flex items-center justify-center w-10 h-10 rounded-xl border transition-all duration-300 ${
+              isScrolled
+                ? 'border-gray-200 text-gray-700 hover:bg-gray-50 hover:scale-105'
+                : 'border-gray-200 text-gray-700 hover:bg-gray-50 hover:scale-105'
+            }`}
             onClick={() => setMobileMenuOpen(v => !v)}
             aria-label="Toggle menu"
             aria-expanded={mobileMenuOpen}
@@ -61,25 +94,27 @@ export const Header = () => {
       </div>
 
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-gray-100 bg-white">
+        <div className={`md:hidden border-t transition-all duration-300 ${
+          isScrolled ? 'border-gray-100 bg-white/95 backdrop-blur-md' : 'border-gray-100 bg-white'
+        }`}>
           <div className="max-w-7xl mx-auto px-4 py-4 space-y-3">
             <Link
               to="/blogs"
-              className="block text-gray-700 hover:text-teal-600 font-medium transition-colors"
+              className="block text-gray-700 hover:text-teal-600 font-medium transition-all duration-300 hover:pl-2 border-l-2 border-transparent hover:border-teal-600"
               onClick={() => setMobileMenuOpen(false)}
             >
               Health Blog
             </Link>
             <Link
               to="/about"
-              className="block text-gray-700 hover:text-teal-600 font-medium transition-colors"
+              className="block text-gray-700 hover:text-teal-600 font-medium transition-all duration-300 hover:pl-2 border-l-2 border-transparent hover:border-teal-600"
               onClick={() => setMobileMenuOpen(false)}
             >
               About Us
             </Link>
             <Link
               to="/contact"
-              className="block text-gray-700 hover:text-teal-600 font-medium transition-colors"
+              className="block text-gray-700 hover:text-teal-600 font-medium transition-all duration-300 hover:pl-2 border-l-2 border-transparent hover:border-teal-600"
               onClick={() => setMobileMenuOpen(false)}
             >
               Contact
@@ -87,7 +122,7 @@ export const Header = () => {
             <div className="pt-2 flex flex-col gap-3">
               <Button
                 variant="outline"
-                className="w-full border-teal-600 text-teal-600 hover:bg-teal-50"
+                className="w-full border-teal-600 text-teal-600 hover:bg-teal-50 transition-all duration-300 hover:scale-105"
                 onClick={() => {
                   setMobileMenuOpen(false);
                   navigate('/doctor-auth');
@@ -96,7 +131,7 @@ export const Header = () => {
                 Join as Doctor
               </Button>
               <Button
-                className="w-full bg-teal-600 hover:bg-teal-700 text-white"
+                className="w-full bg-teal-600 hover:bg-teal-700 text-white transition-all duration-300 hover:scale-105"
                 onClick={() => {
                   setMobileMenuOpen(false);
                   navigate('/');

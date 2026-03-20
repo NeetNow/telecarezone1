@@ -240,7 +240,10 @@ export default function DoctorLanding({ subdomain: propSubdomain }) {
                 <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-6 leading-tight" style={{ fontFamily: 'Playfair Display, serif' }}>
                   Dr. {professional.first_name} {professional.last_name}
                 </h1>
-                <p className="text-xl sm:text-2xl text-white/90 mb-8">{professional.speciality}</p>
+                <p className="text-xl sm:text-2xl text-white/90 mb-2">{professional.speciality}</p>
+                {professional.profession_qualification && (
+                  <p className="text-lg sm:text-xl text-white/80 mb-8">{professional.profession_qualification}</p>
+                )}
               </div>
               
               <div className="flex flex-wrap gap-3 mb-8 justify-center lg:justify-start">
@@ -288,7 +291,7 @@ export default function DoctorLanding({ subdomain: propSubdomain }) {
                 )}
               </div>
               
-              <div className="flex flex-col sm:flex-row items-center space-y-6 sm:space-y-0 sm:space-x-8 mb-10">
+              <div className="flex flex-col items-center space-y-6 mb-10">
                 <div className="text-center bg-white/20 backdrop-blur-sm px-6 py-4 sm:px-8 sm:py-6 rounded-2xl border border-white/30">
                   <p className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-2">₹{professional.consulting_fees}</p>
                   <p className="text-sm sm:text-base text-white/80">Consultation Fee</p>
@@ -303,54 +306,54 @@ export default function DoctorLanding({ subdomain: propSubdomain }) {
                   Book Appointment
                   <ChevronRight className="w-7 h-7 ml-2" />
                 </Button>
-              </div>
-              
-              <div className="flex items-center space-x-6 justify-center lg:justify-start">
-                {professional.instagram && (
-                  <button 
-                    onClick={() => handleSocialClick('instagram', professional.instagram)}
-                    className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transform hover:scale-110 transition-all duration-300 border border-white/30"
-                    aria-label="Visit Instagram profile"
-                  >
-                    <Instagram className="w-7 h-7" />
-                  </button>
-                )}
-                {professional.youtube && (
-                  <button 
-                    onClick={() => handleSocialClick('youtube', professional.youtube)}
-                    className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transform hover:scale-110 transition-all duration-300 border border-white/30"
-                    aria-label="Visit YouTube channel"
-                  >
-                    <Youtube className="w-7 h-7" />
-                  </button>
-                )}
-                {professional.twitter && (
-                  <button 
-                    onClick={() => handleSocialClick('twitter', professional.twitter)}
-                    className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transform hover:scale-110 transition-all duration-300 border border-white/30"
-                    aria-label="Visit Twitter profile"
-                  >
-                    <Twitter className="w-7 h-7" />
-                  </button>
-                )}
-                {professional.linkedin && (
-                  <button 
-                    onClick={() => handleSocialClick('linkedin', professional.linkedin)}
-                    className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transform hover:scale-110 transition-all duration-300 border border-white/30"
-                    aria-label="Visit LinkedIn profile"
-                  >
-                    <Linkedin className="w-7 h-7" />
-                  </button>
-                )}
-                {professional.facebook && (
-                  <button 
-                    onClick={() => handleSocialClick('facebook', professional.facebook)}
-                    className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transform hover:scale-110 transition-all duration-300 border border-white/30"
-                    aria-label="Visit Facebook profile"
-                  >
-                    <Facebook className="w-7 h-7" />
-                  </button>
-                )}
+                
+                <div className="flex items-center space-x-6">
+                  {professional.instagram && (
+                    <button 
+                      onClick={() => handleSocialClick('instagram', professional.instagram)}
+                      className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transform hover:scale-110 transition-all duration-300 border border-white/30"
+                      aria-label="Visit Instagram profile"
+                    >
+                      <Instagram className="w-7 h-7" />
+                    </button>
+                  )}
+                  {professional.youtube && (
+                    <button 
+                      onClick={() => handleSocialClick('youtube', professional.youtube)}
+                      className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transform hover:scale-110 transition-all duration-300 border border-white/30"
+                      aria-label="Visit YouTube channel"
+                    >
+                      <Youtube className="w-7 h-7" />
+                    </button>
+                  )}
+                  {professional.twitter && (
+                    <button 
+                      onClick={() => handleSocialClick('twitter', professional.twitter)}
+                      className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transform hover:scale-110 transition-all duration-300 border border-white/30"
+                      aria-label="Visit Twitter profile"
+                    >
+                      <Twitter className="w-7 h-7" />
+                    </button>
+                  )}
+                  {professional.linkedin && (
+                    <button 
+                      onClick={() => handleSocialClick('linkedin', professional.linkedin)}
+                      className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transform hover:scale-110 transition-all duration-300 border border-white/30"
+                      aria-label="Visit LinkedIn profile"
+                    >
+                      <Linkedin className="w-7 h-7" />
+                    </button>
+                  )}
+                  {professional.facebook && (
+                    <button 
+                      onClick={() => handleSocialClick('facebook', professional.facebook)}
+                      className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transform hover:scale-110 transition-all duration-300 border border-white/30"
+                      aria-label="Visit Facebook profile"
+                    >
+                      <Facebook className="w-7 h-7" />
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
             
@@ -377,7 +380,10 @@ export default function DoctorLanding({ subdomain: propSubdomain }) {
                       </div>
                       
                       <h2 className="text-3xl font-bold mb-2" style={{ color: themeColor }}>Dr. {professional.first_name} {professional.last_name}</h2>
-                      <p className="text-gray-600 mb-6 text-lg">{professional.speciality}</p>
+                      <p className="text-gray-600 mb-2 text-lg">{professional.speciality}</p>
+                      {professional.profession_qualification && (
+                        <p className="text-gray-500 mb-6 text-sm">{professional.profession_qualification}</p>
+                      )}
                       
                       {/* Interactive Stats */}
                       <div className="grid grid-cols-3 gap-4 mb-6">
